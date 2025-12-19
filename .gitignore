@@ -1,0 +1,9 @@
+/caches/
+/eval_results/*.json
+__pycache__/
+spell_check_out/
+AgeDataset-V1.csv
+.claude/
+compositional_questions.json
+compositional_element_questions.json
+/data/

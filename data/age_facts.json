@@ -1,0 +1,902 @@
+[
+  {
+    "question": "At what age did Elder Paisios of Mount Athos die?",
+    "answer": 69,
+    "category": "Age at death",
+    "name": "Elder Paisios of Mount Athos"
+  },
+  {
+    "question": "At what age did Mustafa Kemal Atatürk die?",
+    "answer": 57,
+    "category": "Age at death",
+    "name": "Mustafa Kemal Atatürk"
+  },
+  {
+    "question": "At what age did Charles Lyell die?",
+    "answer": 77,
+    "category": "Age at death",
+    "name": "Charles Lyell"
+  },
+  {
+    "question": "At what age did David Bowie die?",
+    "answer": 69,
+    "category": "Age at death",
+    "name": "David Bowie"
+  },
+  {
+    "question": "At what age did Louis Blériot die?",
+    "answer": 64,
+    "category": "Age at death",
+    "name": "Louis Blériot"
+  },
+  {
+    "question": "At what age did Francisco Goya die?",
+    "answer": 82,
+    "category": "Age at death",
+    "name": "Francisco Goya"
+  },
+  {
+    "question": "At what age did Greta Garbo die?",
+    "answer": 84,
+    "category": "Age at death",
+    "name": "Greta Garbo"
+  },
+  {
+    "question": "At what age did Pietro Mennea die?",
+    "answer": 60,
+    "category": "Age at death",
+    "name": "Pietro Mennea"
+  },
+  {
+    "question": "At what age did Antonio Canova die?",
+    "answer": 64,
+    "category": "Age at death",
+    "name": "Antonio Canova"
+  },
+  {
+    "question": "At what age did Salvador Dalí die?",
+    "answer": 84,
+    "category": "Age at death",
+    "name": "Salvador Dalí"
+  },
+  {
+    "question": "At what age did Vincent van Gogh die?",
+    "answer": 37,
+    "category": "Age at death",
+    "name": "Vincent van Gogh"
+  },
+  {
+    "question": "At what age did Frida Kahlo die?",
+    "answer": 47,
+    "category": "Age at death",
+    "name": "Frida Kahlo"
+  },
+  {
+    "question": "At what age did Henri Matisse die?",
+    "answer": 84,
+    "category": "Age at death",
+    "name": "Henri Matisse"
+  },
+  {
+    "question": "At what age did Pablo Picasso die?",
+    "answer": 91,
+    "category": "Age at death",
+    "name": "Pablo Picasso"
+  },
+  {
+    "question": "At what age did Rembrandt die?",
+    "answer": 63,
+    "category": "Age at death",
+    "name": "Rembrandt"
+  },
+  {
+    "question": "At what age did Peter Paul Rubens die?",
+    "answer": 62,
+    "category": "Age at death",
+    "name": "Peter Paul Rubens"
+  },
+  {
+    "question": "At what age did Andy Warhol die?",
+    "answer": 58,
+    "category": "Age at death",
+    "name": "Andy Warhol"
+  },
+  {
+    "question": "At what age did Frank Lloyd Wright die?",
+    "answer": 91,
+    "category": "Age at death",
+    "name": "Frank Lloyd Wright"
+  },
+  {
+    "question": "At what age did Hans Christian Andersen die?",
+    "answer": 70,
+    "category": "Age at death",
+    "name": "Hans Christian Andersen"
+  },
+  {
+    "question": "At what age did Matsuo Bashō die?",
+    "answer": 50,
+    "category": "Age at death",
+    "name": "Matsuo Bashō"
+  },
+  {
+    "question": "At what age did Lord Byron die?",
+    "answer": 36,
+    "category": "Age at death",
+    "name": "Lord Byron"
+  },
+  {
+    "question": "At what age did Miguel de Cervantes die?",
+    "answer": 68,
+    "category": "Age at death",
+    "name": "Miguel de Cervantes"
+  },
+  {
+    "question": "At what age did Anton Chekhov die?",
+    "answer": 44,
+    "category": "Age at death",
+    "name": "Anton Chekhov"
+  },
+  {
+    "question": "At what age did Charles Dickens die?",
+    "answer": 58,
+    "category": "Age at death",
+    "name": "Charles Dickens"
+  },
+  {
+    "question": "At what age did Philippe Pétain die?",
+    "answer": 95,
+    "category": "Age at death",
+    "name": "Philippe Pétain"
+  },
+  {
+    "question": "At what age did Peter Kropotkin die?",
+    "answer": 78,
+    "category": "Age at death",
+    "name": "Peter Kropotkin"
+  },
+  {
+    "question": "At what age did Che Guevara die?",
+    "answer": 39,
+    "category": "Age at death",
+    "name": "Che Guevara"
+  },
+  {
+    "question": "At what age did Gabriel García Márquez die?",
+    "answer": 87,
+    "category": "Age at death",
+    "name": "Gabriel García Márquez"
+  },
+  {
+    "question": "At what age did Marcel Duchamp die?",
+    "answer": 81,
+    "category": "Age at death",
+    "name": "Marcel Duchamp"
+  },
+  {
+    "question": "At what age did Chuck Berry die?",
+    "answer": 90,
+    "category": "Age at death",
+    "name": "Chuck Berry"
+  },
+  {
+    "question": "At what age did Jimi Hendrix die?",
+    "answer": 27,
+    "category": "Age at death",
+    "name": "Jimi Hendrix"
+  },
+  {
+    "question": "At what age did James Brown die?",
+    "answer": 73,
+    "category": "Age at death",
+    "name": "James Brown"
+  },
+  {
+    "question": "At what age did Eddie Cochran die?",
+    "answer": 21,
+    "category": "Age at death",
+    "name": "Eddie Cochran"
+  },
+  {
+    "question": "At what age did Buddy Holly die?",
+    "answer": 22,
+    "category": "Age at death",
+    "name": "Buddy Holly"
+  },
+  {
+    "question": "At what age did Hebe Camargo die?",
+    "answer": 83,
+    "category": "Age at death",
+    "name": "Hebe Camargo"
+  },
+  {
+    "question": "At what age did Tupac Shakur die?",
+    "answer": 25,
+    "category": "Age at death",
+    "name": "Tupac Shakur"
+  },
+  {
+    "question": "At what age did Gerardus Mercator die?",
+    "answer": 82,
+    "category": "Age at death",
+    "name": "Gerardus Mercator"
+  },
+  {
+    "question": "At what age did Søren Kierkegaard die?",
+    "answer": 42,
+    "category": "Age at death",
+    "name": "Søren Kierkegaard"
+  },
+  {
+    "question": "At what age did Mervyn Peake die?",
+    "answer": 57,
+    "category": "Age at death",
+    "name": "Mervyn Peake"
+  },
+  {
+    "question": "At what age did Jean-Jacques Rousseau die?",
+    "answer": 66,
+    "category": "Age at death",
+    "name": "Jean-Jacques Rousseau"
+  },
+  {
+    "question": "At what age did Stanisław Lem die?",
+    "answer": 84,
+    "category": "Age at death",
+    "name": "Stanisław Lem"
+  },
+  {
+    "question": "At what age did Günter Grass die?",
+    "answer": 87,
+    "category": "Age at death",
+    "name": "Günter Grass"
+  },
+  {
+    "question": "At what age did Gustave Doré die?",
+    "answer": 51,
+    "category": "Age at death",
+    "name": "Gustave Doré"
+  },
+  {
+    "question": "At what age did Alexander von Humboldt die?",
+    "answer": 89,
+    "category": "Age at death",
+    "name": "Alexander von Humboldt"
+  },
+  {
+    "question": "At what age did Allen Ginsberg die?",
+    "answer": 70,
+    "category": "Age at death",
+    "name": "Allen Ginsberg"
+  },
+  {
+    "question": "At what age did Wilhelm Grimm die?",
+    "answer": 73,
+    "category": "Age at death",
+    "name": "Wilhelm Grimm"
+  },
+  {
+    "question": "At what age did Carl Friedrich Gauss die?",
+    "answer": 77,
+    "category": "Age at death",
+    "name": "Carl Friedrich Gauss"
+  },
+  {
+    "question": "At what age did Edward Teller die?",
+    "answer": 95,
+    "category": "Age at death",
+    "name": "Edward Teller"
+  },
+  {
+    "question": "At what age did James Joyce die?",
+    "answer": 58,
+    "category": "Age at death",
+    "name": "James Joyce"
+  },
+  {
+    "question": "At what age did Niels Bohr die?",
+    "answer": 77,
+    "category": "Age at death",
+    "name": "Niels Bohr"
+  },
+  {
+    "question": "At what age did Évariste Galois die?",
+    "answer": 20,
+    "category": "Age at death",
+    "name": "Évariste Galois"
+  },
+  {
+    "question": "At what age did Emmy Noether die?",
+    "answer": 53,
+    "category": "Age at death",
+    "name": "Emmy Noether"
+  },
+  {
+    "question": "At what age did Sophie Germain die?",
+    "answer": 55,
+    "category": "Age at death",
+    "name": "Sophie Germain"
+  },
+  {
+    "question": "At what age did Michel Audiard die?",
+    "answer": 65,
+    "category": "Age at death",
+    "name": "Michel Audiard"
+  },
+  {
+    "question": "At what age did Marie Curie die?",
+    "answer": 66,
+    "category": "Age at death",
+    "name": "Marie Curie"
+  },
+  {
+    "question": "At what age did Simone de Beauvoir die?",
+    "answer": 78,
+    "category": "Age at death",
+    "name": "Simone de Beauvoir"
+  },
+  {
+    "question": "At what age did Marcel Proust die?",
+    "answer": 51,
+    "category": "Age at death",
+    "name": "Marcel Proust"
+  },
+  {
+    "question": "At what age did Alexander Pushkin die?",
+    "answer": 37,
+    "category": "Age at death",
+    "name": "Alexander Pushkin"
+  },
+  {
+    "question": "At what age did Elizabeth I of England die?",
+    "answer": 69,
+    "category": "Age at death",
+    "name": "Elizabeth I of England"
+  },
+  {
+    "question": "At what age did Marie-Anne Paulze Lavoisier die?",
+    "answer": 78,
+    "category": "Age at death",
+    "name": "Marie-Anne Paulze Lavoisier"
+  },
+  {
+    "question": "At what age did Rosa Luxemburg die?",
+    "answer": 47,
+    "category": "Age at death",
+    "name": "Rosa Luxemburg"
+  },
+  {
+    "question": "At what age did Rabindranath Tagore die?",
+    "answer": 80,
+    "category": "Age at death",
+    "name": "Rabindranath Tagore"
+  },
+  {
+    "question": "At what age did Leo Tolstoy die?",
+    "answer": 82,
+    "category": "Age at death",
+    "name": "Leo Tolstoy"
+  },
+  {
+    "question": "At what age did Mark Twain die?",
+    "answer": 74,
+    "category": "Age at death",
+    "name": "Mark Twain"
+  },
+  {
+    "question": "At what age did Agnes Pockels die?",
+    "answer": 73,
+    "category": "Age at death",
+    "name": "Agnes Pockels"
+  },
+  {
+    "question": "At what age did Alan Turing die?",
+    "answer": 41,
+    "category": "Age at death",
+    "name": "Alan Turing"
+  },
+  {
+    "question": "At what age did Ada Lovelace die?",
+    "answer": 36,
+    "category": "Age at death",
+    "name": "Ada Lovelace"
+  },
+  {
+    "question": "At what age did Émilie du Châtelet die?",
+    "answer": 42,
+    "category": "Age at death",
+    "name": "Émilie du Châtelet"
+  },
+  {
+    "question": "At what age did Johannes Brahms die?",
+    "answer": 63,
+    "category": "Age at death",
+    "name": "Johannes Brahms"
+  },
+  {
+    "question": "At what age did Antonín Dvořák die?",
+    "answer": 63,
+    "category": "Age at death",
+    "name": "Antonín Dvořák"
+  },
+  {
+    "question": "At what age did George Frideric Handel die?",
+    "answer": 74,
+    "category": "Age at death",
+    "name": "George Frideric Handel"
+  },
+  {
+    "question": "At what age did Gustav Mahler die?",
+    "answer": 50,
+    "category": "Age at death",
+    "name": "Gustav Mahler"
+  },
+  {
+    "question": "At what age did Giacomo Puccini die?",
+    "answer": 65,
+    "category": "Age at death",
+    "name": "Giacomo Puccini"
+  },
+  {
+    "question": "At what age did Franz Schubert die?",
+    "answer": 31,
+    "category": "Age at death",
+    "name": "Franz Schubert"
+  },
+  {
+    "question": "At what age did Igor Stravinsky die?",
+    "answer": 88,
+    "category": "Age at death",
+    "name": "Igor Stravinsky"
+  },
+  {
+    "question": "At what age did Pyotr Ilyich Tchaikovsky die?",
+    "answer": 53,
+    "category": "Age at death",
+    "name": "Pyotr Ilyich Tchaikovsky"
+  },
+  {
+    "question": "At what age did Giuseppe Verdi die?",
+    "answer": 87,
+    "category": "Age at death",
+    "name": "Giuseppe Verdi"
+  },
+  {
+    "question": "At what age did James Cook die?",
+    "answer": 50,
+    "category": "Age at death",
+    "name": "James Cook"
+  },
+  {
+    "question": "At what age did Yuri Gagarin die?",
+    "answer": 34,
+    "category": "Age at death",
+    "name": "Yuri Gagarin"
+  },
+  {
+    "question": "At what age did Otto Frank die?",
+    "answer": 91,
+    "category": "Age at death",
+    "name": "Otto Frank"
+  },
+  {
+    "question": "At what age did John Coltrane die?",
+    "answer": 40,
+    "category": "Age at death",
+    "name": "John Coltrane"
+  },
+  {
+    "question": "At what age did Joseph Haydn die?",
+    "answer": 77,
+    "category": "Age at death",
+    "name": "Joseph Haydn"
+  },
+  {
+    "question": "At what age did Robert Schumann die?",
+    "answer": 46,
+    "category": "Age at death",
+    "name": "Robert Schumann"
+  },
+  {
+    "question": "At what age did Alfred Hitchcock die?",
+    "answer": 80,
+    "category": "Age at death",
+    "name": "Alfred Hitchcock"
+  },
+  {
+    "question": "At what age did Kamala Sohonie die?",
+    "answer": 86,
+    "category": "Age at death",
+    "name": "Kamala Sohonie"
+  },
+  {
+    "question": "At what age did Hertha Sponer die?",
+    "answer": 73,
+    "category": "Age at death",
+    "name": "Hertha Sponer"
+  },
+  {
+    "question": "At what age did Margaret Thatcher die?",
+    "answer": 87,
+    "category": "Age at death",
+    "name": "Margaret Thatcher"
+  },
+  {
+    "question": "At what age did Karen Wetterhahn die?",
+    "answer": 48,
+    "category": "Age at death",
+    "name": "Karen Wetterhahn"
+  },
+  {
+    "question": "At what age did Elsie Widdowson die?",
+    "answer": 93,
+    "category": "Age at death",
+    "name": "Elsie Widdowson"
+  },
+  {
+    "question": "At what age did Ruth R. Benerito die?",
+    "answer": 97,
+    "category": "Age at death",
+    "name": "Ruth R. Benerito"
+  },
+  {
+    "question": "At what age did Hazel Bishop die?",
+    "answer": 92,
+    "category": "Age at death",
+    "name": "Hazel Bishop"
+  },
+  {
+    "question": "At what age did Rachel Fuller Brown die?",
+    "answer": 81,
+    "category": "Age at death",
+    "name": "Rachel Fuller Brown"
+  },
+  {
+    "question": "At what age did Emma P. Carr die?",
+    "answer": 92,
+    "category": "Age at death",
+    "name": "Emma P. Carr"
+  },
+  {
+    "question": "At what age did Asima Chatterjee die?",
+    "answer": 89,
+    "category": "Age at death",
+    "name": "Asima Chatterjee"
+  },
+  {
+    "question": "At what age did Mildred Cohn die?",
+    "answer": 95,
+    "category": "Age at death",
+    "name": "Mildred Cohn"
+  },
+  {
+    "question": "At what age did Rosalind Franklin die?",
+    "answer": 37,
+    "category": "Age at death",
+    "name": "Rosalind Franklin"
+  },
+  {
+    "question": "At what age did Anna J. Harrison die?",
+    "answer": 85,
+    "category": "Age at death",
+    "name": "Anna J. Harrison"
+  },
+  {
+    "question": "At what age did Dorothy Hodgkin die?",
+    "answer": 84,
+    "category": "Age at death",
+    "name": "Dorothy Hodgkin"
+  },
+  {
+    "question": "At what age did Irène Joliot-Curie die?",
+    "answer": 58,
+    "category": "Age at death",
+    "name": "Irène Joliot-Curie"
+  },
+  {
+    "question": "At what age did Stephanie L. Kwolek die?",
+    "answer": 90,
+    "category": "Age at death",
+    "name": "Stephanie L. Kwolek"
+  },
+  {
+    "question": "At what age did Louise Nevelson die?",
+    "answer": 88,
+    "category": "Age at death",
+    "name": "Louise Nevelson"
+  },
+  {
+    "question": "At what age did Prince die?",
+    "answer": 57,
+    "category": "Age at death",
+    "name": "Prince"
+  },
+  {
+    "question": "At what age did Ingmar Bergman die?",
+    "answer": 89,
+    "category": "Age at death",
+    "name": "Ingmar Bergman"
+  },
+  {
+    "question": "At what age did Leonhard Euler die?",
+    "answer": 76,
+    "category": "Age at death",
+    "name": "Leonhard Euler"
+  },
+  {
+    "question": "At what age did Napoleon III die?",
+    "answer": 64,
+    "category": "Age at death",
+    "name": "Napoleon III"
+  },
+  {
+    "question": "At what age did Napoleon II die?",
+    "answer": 21,
+    "category": "Age at death",
+    "name": "Napoleon II"
+  },
+  {
+    "question": "At what age did August Strindberg die?",
+    "answer": 63,
+    "category": "Age at death",
+    "name": "August Strindberg"
+  },
+  {
+    "question": "At what age did Joseph Bonaparte die?",
+    "answer": 76,
+    "category": "Age at death",
+    "name": "Joseph Bonaparte"
+  },
+  {
+    "question": "At what age did Louis XVI of France die?",
+    "answer": 38,
+    "category": "Age at death",
+    "name": "Louis XVI of France"
+  },
+  {
+    "question": "At what age did Louis XV of France die?",
+    "answer": 64,
+    "category": "Age at death",
+    "name": "Louis XV of France"
+  },
+  {
+    "question": "At what age did Louis XIV of France die?",
+    "answer": 76,
+    "category": "Age at death",
+    "name": "Louis XIV of France"
+  },
+  {
+    "question": "At what age did Louis XVIII of France die?",
+    "answer": 68,
+    "category": "Age at death",
+    "name": "Louis XVIII of France"
+  },
+  {
+    "question": "At what age did Giuseppe Arcimboldo die?",
+    "answer": 66,
+    "category": "Age at death",
+    "name": "Giuseppe Arcimboldo"
+  },
+  {
+    "question": "At what age did Charles X of France die?",
+    "answer": 79,
+    "category": "Age at death",
+    "name": "Charles X of France"
+  },
+  {
+    "question": "At what age did Louis Philippe I die?",
+    "answer": 76,
+    "category": "Age at death",
+    "name": "Louis Philippe I"
+  },
+  {
+    "question": "At what age did Annibale Carracci die?",
+    "answer": 49,
+    "category": "Age at death",
+    "name": "Annibale Carracci"
+  },
+  {
+    "question": "At what age did Boris Vian die?",
+    "answer": 39,
+    "category": "Age at death",
+    "name": "Boris Vian"
+  },
+  {
+    "question": "At what age did René Magritte die?",
+    "answer": 68,
+    "category": "Age at death",
+    "name": "René Magritte"
+  },
+  {
+    "question": "At what age did Alfred Jarry die?",
+    "answer": 34,
+    "category": "Age at death",
+    "name": "Alfred Jarry"
+  },
+  {
+    "question": "At what age did Frank Herbert die?",
+    "answer": 65,
+    "category": "Age at death",
+    "name": "Frank Herbert"
+  },
+  {
+    "question": "At what age did Lluís Companys die?",
+    "answer": 58,
+    "category": "Age at death",
+    "name": "Lluís Companys"
+  },
+  {
+    "question": "At what age did Ivan IV Vasilyevich die?",
+    "answer": 53,
+    "category": "Age at death",
+    "name": "Ivan IV Vasilyevich"
+  },
+  {
+    "question": "At what age did Sergei Eisenstein die?",
+    "answer": 50,
+    "category": "Age at death",
+    "name": "Sergei Eisenstein"
+  },
+  {
+    "question": "At what age did Akira Kurosawa die?",
+    "answer": 88,
+    "category": "Age at death",
+    "name": "Akira Kurosawa"
+  },
+  {
+    "question": "At what age did Franklin Delano Roosevelt die?",
+    "answer": 63,
+    "category": "Age at death",
+    "name": "Franklin Delano Roosevelt"
+  },
+  {
+    "question": "At what age did Winston Churchill die?",
+    "answer": 90,
+    "category": "Age at death",
+    "name": "Winston Churchill"
+  },
+  {
+    "question": "At what age did Nelson Mandela die?",
+    "answer": 95,
+    "category": "Age at death",
+    "name": "Nelson Mandela"
+  },
+  {
+    "question": "At what age did Martin Luther King Jr. die?",
+    "answer": 39,
+    "category": "Age at death",
+    "name": "Martin Luther King Jr."
+  },
+  {
+    "question": "At what age did Paul Bocuse die?",
+    "answer": 91,
+    "category": "Age at death",
+    "name": "Paul Bocuse"
+  },
+  {
+    "question": "At what age did Fred Sersen die?",
+    "answer": 72,
+    "category": "Age at death",
+    "name": "Fred Sersen"
+  },
+  {
+    "question": "At what age did Hugo Chávez die?",
+    "answer": 58,
+    "category": "Age at death",
+    "name": "Hugo Chávez"
+  },
+  {
+    "question": "At what age did Otto von Bismarck die?",
+    "answer": 83,
+    "category": "Age at death",
+    "name": "Otto von Bismarck"
+  },
+  {
+    "question": "At what age did Kurt Cobain die?",
+    "answer": 27,
+    "category": "Age at death",
+    "name": "Kurt Cobain"
+  },
+  {
+    "question": "At what age did Peter the Great die?",
+    "answer": 52,
+    "category": "Age at death",
+    "name": "Peter the Great"
+  },
+  {
+    "question": "At what age did Edsger W. Dijkstra die?",
+    "answer": 72,
+    "category": "Age at death",
+    "name": "Edsger W. Dijkstra"
+  },
+  {
+    "question": "At what age did Sun Yat-sen die?",
+    "answer": 58,
+    "category": "Age at death",
+    "name": "Sun Yat-sen"
+  },
+  {
+    "question": "At what age did Akbar die?",
+    "answer": 63,
+    "category": "Age at death",
+    "name": "Akbar"
+  },
+  {
+    "question": "At what age did Simón Bolívar die?",
+    "answer": 47,
+    "category": "Age at death",
+    "name": "Simón Bolívar"
+  },
+  {
+    "question": "At what age did Andrew Johnson die?",
+    "answer": 66,
+    "category": "Age at death",
+    "name": "Andrew Johnson"
+  },
+  {
+    "question": "At what age did Pierre Trudeau die?",
+    "answer": 80,
+    "category": "Age at death",
+    "name": "Pierre Trudeau"
+  },
+  {
+    "question": "At what age did L. B. Abbott die?",
+    "answer": 77,
+    "category": "Age at death",
+    "name": "L. B. Abbott"
+  },
+  {
+    "question": "At what age did Juan Trippe die?",
+    "answer": 81,
+    "category": "Age at death",
+    "name": "Juan Trippe"
+  },
+  {
+    "question": "At what age did Walt Disney die?",
+    "answer": 65,
+    "category": "Age at death",
+    "name": "Walt Disney"
+  },
+  {
+    "question": "At what age did Thomas Alva Edison die?",
+    "answer": 84,
+    "category": "Age at death",
+    "name": "Thomas Alva Edison"
+  },
+  {
+    "question": "At what age did Michael Faraday die?",
+    "answer": 75,
+    "category": "Age at death",
+    "name": "Michael Faraday"
+  },
+  {
+    "question": "At what age did Enrico Fermi die?",
+    "answer": 53,
+    "category": "Age at death",
+    "name": "Enrico Fermi"
+  },
+  {
+    "question": "At what age did Colin Maclaurin die?",
+    "answer": 48,
+    "category": "Age at death",
+    "name": "Colin Maclaurin"
+  },
+  {
+    "question": "At what age did Henry Ford die?",
+    "answer": 83,
+    "category": "Age at death",
+    "name": "Henry Ford"
+  },
+  {
+    "question": "At what age did Joseph Fourier die?",
+    "answer": 62,
+    "category": "Age at death",
+    "name": "Joseph Fourier"
+  },
+  {
+    "question": "At what age did Augustin-Louis Cauchy die?",
+    "answer": 67,
+    "category": "Age at death",
+    "name": "Augustin-Louis Cauchy"
+  }
+]
