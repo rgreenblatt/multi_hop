@@ -104,7 +104,7 @@ Here are random example questions for each hop level.
 
 To generate a dataset of 2-hop questions with relatively salient facts, I use the same initial questions to generate an integer (except I cut questions about number of representatives in a given state house) but only keep the "What US state was Xth to join the union?" and "What element has atomic number X?" templates.
 
-See [generate_dataset.py](TODO) in the public code base for more details.
+See [generate_dataset.py](https://github.com/rgreenblatt/multi_hop/blob/master/generate_dataset.py) in the public code base for more details.
 
 ## Dataset sanity checks
 
@@ -116,4 +116,5 @@ We verify that Opus 4.5 has high accuracy on each possible single hop. It gets 9
 
 I heavily used Claude Code for this project, especially for writing the code for generating datasets and for plotting.
 Probably the uplift on this exact project was pretty substantial (like 3x), though I wouldn't have done this project without current AI tools.
+I didn't use AI for writing this post.
 
