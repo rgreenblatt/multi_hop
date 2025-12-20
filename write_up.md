@@ -26,7 +26,7 @@ We also see small performance increases with filler tokens and repeats for 3 hop
 
 I find that performance depends substantially on the salience of the facts: when I use a subset of the 2 hop distribution that focuses on relatively salient facts, performance for Opus 4 with filler tokens counting to 1000 rises to 54% (from the 33% for the normal distribution).
 
-I also evaluate a broader range of models on this task (just showing 2 hop and 3 hop results with 5 repeats[^repeats] for space):
+I also evaluate a broader range of models on this task (just showing 2 hop and 3 hop results with 5 repeats[^repeats] to save space):
 
 ![](https://raw.githubusercontent.com/rgreenblatt/multi_hop/master/eval_results/all_models_2_3_hop.png)
 
