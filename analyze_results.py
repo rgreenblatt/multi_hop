@@ -120,6 +120,8 @@ def extract_data():
     for r in results:
         model = MODEL_NAMES.get(r.get("model"), r.get("model"))
         repeat = r.get("repeat")
+        if r.get("filler") is not None:
+            continue
 
         if model not in data_by_model:
             data_by_model[model] = {}
@@ -615,6 +617,8 @@ def get_model_r_values(model_key):
     for r in results:
         if r.get("model") == model_full_name:
             repeat = r.get("repeat")
+            if r.get("filler") is not None:
+                continue
             r_val = 1 if repeat is None else repeat
             r_values.append(r_val)
     return sorted(set(r_values))
