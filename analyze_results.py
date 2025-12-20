@@ -159,18 +159,19 @@ def plot_accuracy_by_hops():
 
     fig = plt.figure(figsize=(14, 10))
     # 2 top, 1 bottom centered layout using GridSpec
-    gs = fig.add_gridspec(2, 4, hspace=0.3)
+    gs = fig.add_gridspec(2, 4, hspace=0.35, wspace=0.3)
     ax1 = fig.add_subplot(gs[0, 0:2])
     ax2 = fig.add_subplot(gs[0, 2:4])
     ax3 = fig.add_subplot(gs[1, 1:3])  # Centered in bottom row
 
     hops = [2, 3, 4]
-    x = np.arange(len(hops)) * 1.3  # Spacing between hop groups
+    n_models = len(data_by_model)
+    x = np.arange(len(hops)) * 1.1  # Reduced spacing between hop groups
     width = 0.2
 
     # Baseline (no repeat)
     ax = ax1
-    ax.set_title("Accuracy by Hop Level (Baseline, r=1)", fontsize=14)
+    ax.set_title("Baseline (r=1)", fontsize=16)
 
     for i, (model, model_data) in enumerate(data_by_model.items()):
         baseline = model_data.get("baseline", {})
@@ -187,7 +188,7 @@ def plot_accuracy_by_hops():
 
         bars = ax.bar(x + i * width, accuracies, width, label=model, color=MODEL_COLORS.get(model, "gray"))
 
-        # Add value labels
+        # Add value labels (vertical to avoid overlap)
         for bar, acc in zip(bars, accuracies):
             ax.text(
                 bar.get_x() + bar.get_width() / 2,
@@ -195,20 +196,21 @@ def plot_accuracy_by_hops():
                 f"{acc:.1f}%",
                 ha="center",
                 va="bottom",
-                fontsize=8,
+                fontsize=10,
+                rotation=90,
             )
 
-    ax.set_xlabel("Number of Hops")
-    ax.set_ylabel("Accuracy (%)")
-    ax.set_xticks(x + width * 2)
-    ax.set_xticklabels(hops)
-    ax.legend()
+    ax.set_xlabel("Number of Hops", fontsize=13)
+    ax.set_ylabel("Accuracy (%)", fontsize=13)
+    ax.set_xticks(x + width * (n_models - 1) / 2)
+    ax.set_xticklabels(hops, fontsize=12)
+    ax.legend(fontsize=11)
     ax.set_ylim(0, 100)
     ax.grid(axis="y", alpha=0.3)
 
     # With repeat (r=5)
     ax = ax2
-    ax.set_title("Accuracy by Hop Level (With Repeat, r=5)", fontsize=14)
+    ax.set_title("With Repeat (r=5)", fontsize=16)
 
     for i, (model, model_data) in enumerate(data_by_model.items()):
         repeat_data = model_data.get("r5", {})
@@ -232,20 +234,21 @@ def plot_accuracy_by_hops():
                 f"{acc:.1f}%",
                 ha="center",
                 va="bottom",
-                fontsize=8,
+                fontsize=10,
+                rotation=90,
             )
 
-    ax.set_xlabel("Number of Hops")
-    ax.set_ylabel("Accuracy (%)")
-    ax.set_xticks(x + width * 2)
-    ax.set_xticklabels(hops)
-    ax.legend()
+    ax.set_xlabel("Number of Hops", fontsize=13)
+    ax.set_ylabel("Accuracy (%)", fontsize=13)
+    ax.set_xticks(x + width * (n_models - 1) / 2)
+    ax.set_xticklabels(hops, fontsize=12)
+    ax.legend(fontsize=11)
     ax.set_ylim(0, 100)
     ax.grid(axis="y", alpha=0.3)
 
     # Bottom: Improvement from baseline to repeat
     ax = ax3
-    ax.set_title("Improvement from Repeat (r=5 - r=1)", fontsize=14)
+    ax.set_title("Improvement from Repeat (r=5 - r=1)", fontsize=16)
 
     for i, (model, model_data) in enumerate(data_by_model.items()):
         baseline_stats = model_data.get("baseline", {}).get("hop_stats", {})
@@ -269,14 +272,15 @@ def plot_accuracy_by_hops():
                 f"{imp:+.1f}%",
                 ha="center",
                 va="bottom" if imp >= 0 else "top",
-                fontsize=8,
+                fontsize=10,
+                rotation=90,
             )
 
-    ax.set_xlabel("Number of Hops")
-    ax.set_ylabel("Accuracy Improvement (%)")
-    ax.set_xticks(x + width * 2)
-    ax.set_xticklabels(hops)
-    ax.legend()
+    ax.set_xlabel("Number of Hops", fontsize=13)
+    ax.set_ylabel("Improvement (%)", fontsize=13)
+    ax.set_xticks(x + width * (n_models - 1) / 2)
+    ax.set_xticklabels(hops, fontsize=12)
+    ax.legend(fontsize=11)
     ax.axhline(y=0, color="black", linestyle="-", linewidth=0.5)
     ax.set_ylim(-3, 12)
     ax.grid(axis="y", alpha=0.3)
@@ -705,17 +709,17 @@ def plot_performance_vs_r():
 
             offset = annotation_offsets.get(model_key, (0, 10))
             for r_val, acc in zip(r_vals, accs):
-                ax.annotate(f"{acc:.1f}%", (r_val, acc), textcoords="offset points", xytext=offset, ha="center", fontsize=9)
+                ax.annotate(f"{acc:.1f}%", (r_val, acc), textcoords="offset points", xytext=offset, ha="center", fontsize=11)
 
-        ax.set_xlabel("Repeat Count (r)", fontsize=12)
-        ax.set_ylabel("Accuracy (%)", fontsize=12)
-        ax.set_title(f"{h}-Hop Accuracy vs Repeat Count", fontsize=14)
+        ax.set_xlabel("Repeat Count (r)", fontsize=14)
+        ax.set_ylabel("Accuracy (%)", fontsize=14)
+        ax.set_title(f"{h}-Hop Accuracy vs Repeat Count", fontsize=16)
         ax.set_xscale("log")
         ax.set_xticks(sorted(all_r_vals))
-        ax.set_xticklabels([str(x) for x in sorted(all_r_vals)])
+        ax.set_xticklabels([str(x) for x in sorted(all_r_vals)], fontsize=12)
         ax.set_ylim(0, 100)
         ax.grid(alpha=0.3)
-        ax.legend()
+        ax.legend(fontsize=12)
 
         plt.tight_layout()
         plt.savefig(f"eval_results/performance_vs_r_{h}hop.png", dpi=150, bbox_inches="tight")
@@ -925,21 +929,21 @@ def plot_performance_vs_f():
 
             offset = annotation_offsets.get(model_key, (0, 10))
             for f_val_plot, acc in zip(f_vals_plot, accs):
-                ax.annotate(f"{acc:.1f}%", (f_val_plot, acc), textcoords="offset points", xytext=offset, ha="center", fontsize=9)
+                ax.annotate(f"{acc:.1f}%", (f_val_plot, acc), textcoords="offset points", xytext=offset, ha="center", fontsize=11)
 
-        ax.set_xlabel("Filler Token Count", fontsize=12)
-        ax.set_ylabel("Accuracy (%)", fontsize=12)
-        ax.set_title(f"{h}-Hop Accuracy vs Filler Tokens", fontsize=14)
+        ax.set_xlabel("Filler Token Count", fontsize=14)
+        ax.set_ylabel("Accuracy (%)", fontsize=14)
+        ax.set_title(f"{h}-Hop Accuracy vs Filler Tokens", fontsize=16)
         ax.set_xscale("log")
         ax.set_ylim(0, 100)
         ax.grid(alpha=0.3)
-        ax.legend()
+        ax.legend(fontsize=12)
 
         # Set custom tick labels: show "0" at position 3, use plain numbers not 10^x
         tick_positions = sorted([3 if x == 0 else x for x in all_f_vals])
         tick_labels = ["0" if x == 3 else str(x) for x in tick_positions]
         ax.set_xticks(tick_positions)
-        ax.set_xticklabels(tick_labels)
+        ax.set_xticklabels(tick_labels, fontsize=12)
         ax.minorticks_off()
 
         plt.tight_layout()
@@ -1129,8 +1133,13 @@ def plot_mapping_comparison():
             print(f"Warning: {filepath} not found")
             config_data[label] = None
 
-    # Create figure with 3 subplots
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    # Create figure with 2 top, 1 bottom layout
+    fig = plt.figure(figsize=(14, 10))
+    gs = fig.add_gridspec(2, 4, hspace=0.35, wspace=0.3)
+    ax1 = fig.add_subplot(gs[0, 0:2])
+    ax2 = fig.add_subplot(gs[0, 2:4])
+    ax3 = fig.add_subplot(gs[1, 1:3])  # Centered in bottom row
+    axes = [ax1, ax2, ax3]
 
     colors = ["#3498DB", "#2ECC71", "#F39C12", "#E74C3C"]
     labels = [c[0] for c in configs]
@@ -1165,7 +1174,7 @@ def plot_mapping_comparison():
                     f"{acc:.1f}%",
                     ha="center",
                     va="top",
-                    fontsize=10,
+                    fontsize=14,
                     color="white",
                     fontweight="bold",
                 )
@@ -1176,19 +1185,18 @@ def plot_mapping_comparison():
                     f"{acc:.1f}%",
                     ha="center",
                     va="bottom",
-                    fontsize=10,
+                    fontsize=14,
                 )
 
-        ax.set_xlabel("Configuration", fontsize=11)
-        ax.set_ylabel("Accuracy (%)", fontsize=11)
-        ax.set_title(f"{hop}-Hop Problems", fontsize=13)
+        ax.set_xlabel("Configuration", fontsize=15)
+        ax.set_ylabel("Accuracy (%)", fontsize=15)
+        ax.set_title(f"{hop}-Hop Problems", fontsize=18)
         ax.set_xticks(x)
-        ax.set_xticklabels(labels, rotation=15, ha="right", fontsize=9)
+        ax.set_xticklabels(labels, rotation=15, ha="right", fontsize=13)
         ax.set_ylim(0, 100)
         ax.grid(axis="y", alpha=0.3)
 
-    plt.suptitle("Opus 4.5: Include Mappings Performance", fontsize=14, fontweight="bold")
-    plt.tight_layout()
+    plt.suptitle("Opus 4.5: Include Mappings Performance", fontsize=20, fontweight="bold", y=0.98)
     plt.savefig("eval_results/mapping_comparison_opus-4-5.png", dpi=150, bbox_inches="tight")
     plt.close()
     print("Saved: eval_results/mapping_comparison_opus-4-5.png")
@@ -1209,7 +1217,7 @@ def plot_all_models_2_3_hop():
     fig, ax = plt.subplots(figsize=(14, 7))
 
     hops = [2, 3]
-    x = np.arange(len(hops)) * 1.5  # Spacing between hop groups
+    x = np.arange(len(hops)) * 1.2  # Reduced spacing between hop groups
 
     # Get models that have r5 data, ordered by EXTENDED_PLOT_MODEL_ORDER
     models_with_r5 = [m for m in EXTENDED_PLOT_MODEL_ORDER if m in data_by_model and "r5" in data_by_model[m]]
@@ -1252,16 +1260,16 @@ def plot_all_models_2_3_hop():
                 f"{acc:.1f}%",
                 ha="center",
                 va="bottom",
-                fontsize=8,
+                fontsize=12,
                 rotation=90,
             )
 
-    ax.set_xlabel("Number of Hops", fontsize=12)
-    ax.set_ylabel("Accuracy (%)", fontsize=12)
-    ax.set_title("All Models: Accuracy by Hop Level (r=5)", fontsize=14)
+    ax.set_xlabel("Number of Hops", fontsize=14)
+    ax.set_ylabel("Accuracy (%)", fontsize=14)
+    ax.set_title("All Models: Accuracy by Hop Level (r=5)", fontsize=16)
     ax.set_xticks(x)
-    ax.set_xticklabels([f"{h}-hop" for h in hops])
-    ax.legend(loc="upper right", fontsize=9)
+    ax.set_xticklabels([f"{h}-hop" for h in hops], fontsize=13)
+    ax.legend(loc="upper right", fontsize=13)
     ax.set_ylim(0, 105)
     ax.grid(axis="y", alpha=0.3)
 
