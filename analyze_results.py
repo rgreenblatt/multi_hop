@@ -84,6 +84,10 @@ MODEL_NAMES = {
     "claude-sonnet-4-20250514": "Sonnet 4",
     "claude-sonnet-4-5-20250929": "Sonnet 4.5",
     "claude-3-5-haiku-20241022": "Haiku 3.5",
+    "qwen/qwen3-235b-a22b-2507": "Qwen3 235B",
+    "gpt-4.1-2025-04-14": "GPT-4.1",
+    "gpt-5.2-2025-12-11": "GPT-5.2",
+    "deepseek/deepseek-chat-v3-0324": "DeepSeek V3",
 }
 
 # Reverse mapping for loading individual results
@@ -93,6 +97,10 @@ MODEL_SHORTHAND = {
     "Sonnet 4": "sonnet-4",
     "Sonnet 4.5": "sonnet-4-5",
     "Haiku 3.5": "haiku-3-5",
+    "Qwen3 235B": "qwen3-235b",
+    "GPT-4.1": "gpt-4.1",
+    "GPT-5.2": "gpt-5.2",
+    "DeepSeek V3": "deepseek-v3",
 }
 
 MODEL_COLORS = {
@@ -101,6 +109,10 @@ MODEL_COLORS = {
     "Sonnet 4": "#2ECC71",
     "Sonnet 4.5": "#9B59B6",
     "Haiku 3.5": "#F39C12",
+    "Qwen3 235B": "#1ABC9C",
+    "GPT-4.1": "#7F8C8D",
+    "GPT-5.2": "#34495E",
+    "DeepSeek V3": "#E91E63",
 }
 
 # Model release dates (approximate)
@@ -135,9 +147,15 @@ def extract_data():
     return data_by_model
 
 
+# Models to include in main plots (exclude Sonnet 4.5)
+MAIN_PLOT_MODELS = ["Opus 4.5", "Opus 4", "Sonnet 4", "Haiku 3.5"]
+
+
 def plot_accuracy_by_hops():
     """Plot accuracy by number of hops for each model."""
     data_by_model = extract_data()
+    # Filter to main plot models only
+    data_by_model = {k: v for k, v in data_by_model.items() if k in MAIN_PLOT_MODELS}
 
     fig = plt.figure(figsize=(14, 10))
     # 2 top, 1 bottom centered layout using GridSpec
@@ -270,6 +288,8 @@ def plot_accuracy_by_hops():
 def plot_repeat_effect():
     """Plot the effect of repeating questions with p-values from paired t-tests."""
     data_by_model = extract_data()
+    # Filter to main plot models only
+    data_by_model = {k: v for k, v in data_by_model.items() if k in MAIN_PLOT_MODELS}
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
@@ -356,6 +376,8 @@ def plot_repeat_effect():
 def plot_hop_decay():
     """Plot how accuracy decays with more hops."""
     data_by_model = extract_data()
+    # Filter to main plot models only
+    data_by_model = {k: v for k, v in data_by_model.items() if k in MAIN_PLOT_MODELS}
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -394,6 +416,8 @@ def plot_hop_decay():
 def plot_repeat_effect_by_hops():
     """Plot repeat effect broken down by hop level with p-values."""
     data_by_model = extract_data()
+    # Filter to main plot models only
+    data_by_model = {k: v for k, v in data_by_model.items() if k in MAIN_PLOT_MODELS}
 
     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
 
@@ -1170,6 +1194,83 @@ def plot_mapping_comparison():
     print("Saved: eval_results/mapping_comparison_opus-4-5.png")
 
 
+# Preferred ordering for extended plots (all models)
+EXTENDED_PLOT_MODEL_ORDER = [
+    "Opus 4.5", "Opus 4", "Sonnet 4", "Sonnet 4.5", "Haiku 3.5",
+    "GPT-4.1", "GPT-5.2", "DeepSeek V3", "Qwen3 235B",
+]
+
+
+def plot_all_models_2_3_hop():
+    """Plot accuracy for all models at r=5, showing only 2-hop and 3-hop."""
+    data_by_model = extract_data()
+    # Include all models that have r5 data
+
+    fig, ax = plt.subplots(figsize=(14, 7))
+
+    hops = [2, 3]
+    x = np.arange(len(hops)) * 1.5  # Spacing between hop groups
+
+    # Get models that have r5 data, ordered by EXTENDED_PLOT_MODEL_ORDER
+    models_with_r5 = [m for m in EXTENDED_PLOT_MODEL_ORDER if m in data_by_model and "r5" in data_by_model[m]]
+    # Add any remaining models not in the order list
+    models_with_r5 += [m for m, data in data_by_model.items() if "r5" in data and m not in models_with_r5]
+    n_models = len(models_with_r5)
+    width = 0.9 / n_models if n_models > 0 else 0.15
+
+    for i, model in enumerate(models_with_r5):
+        model_data = data_by_model[model]
+        repeat_data = model_data.get("r5", {})
+        hop_stats = repeat_data.get("hop_stats", {})
+
+        accuracies = []
+        for h in hops:
+            stats_h = hop_stats.get(str(h), {})
+            if stats_h:
+                correct = stats_h.get("correct", 0)
+                total = stats_h.get("total", 1)
+                acc = correct / total
+            else:
+                acc = 0
+            accuracies.append(acc * 100)
+
+        # Center the bars around each hop position
+        offset = (i - (n_models - 1) / 2) * width
+        bars = ax.bar(
+            x + offset,
+            accuracies,
+            width * 0.9,
+            label=model,
+            color=MODEL_COLORS.get(model, "gray"),
+        )
+
+        # Add value labels
+        for bar, acc in zip(bars, accuracies):
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                bar.get_height() + 3,
+                f"{acc:.1f}%",
+                ha="center",
+                va="bottom",
+                fontsize=8,
+                rotation=90,
+            )
+
+    ax.set_xlabel("Number of Hops", fontsize=12)
+    ax.set_ylabel("Accuracy (%)", fontsize=12)
+    ax.set_title("All Models: Accuracy by Hop Level (r=5)", fontsize=14)
+    ax.set_xticks(x)
+    ax.set_xticklabels([f"{h}-hop" for h in hops])
+    ax.legend(loc="upper right", fontsize=9)
+    ax.set_ylim(0, 105)
+    ax.grid(axis="y", alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig("eval_results/all_models_2_3_hop.png", dpi=150, bbox_inches="tight")
+    plt.close()
+    print("Saved: eval_results/all_models_2_3_hop.png")
+
+
 def main():
     os.makedirs("eval_results", exist_ok=True)
 
@@ -1178,6 +1279,7 @@ def main():
     plot_repeat_effect()
     plot_hop_decay()
     plot_repeat_effect_by_hops()
+    plot_all_models_2_3_hop()
     plot_performance_vs_r()
     plot_significance_matrix_by_hop()
     plot_performance_vs_f()

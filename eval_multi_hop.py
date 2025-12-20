@@ -10,25 +10,84 @@ import asyncio
 import random
 from typing import List, Dict, Any, Optional
 from anthropic import AsyncAnthropic
+try:
+    from openai import AsyncOpenAI
+    OPENAI_V1 = True
+except ImportError:
+    import openai
+    OPENAI_V1 = False
 from response_cache import ResponseCache
 from unidecode import unidecode
 from generate_dataset import US_STATE_MOTTOS, US_STATE_FLOWERS
 from generate_dataset_constants import MAPPING_REGISTRY
 
-# Load API key
+# Load API keys
 if "ANTHROPIC_API_KEY" not in os.environ:
     key_path = os.path.expanduser("~/.anthropic_api_key")
     try:
         with open(key_path, "r") as f:
             os.environ["ANTHROPIC_API_KEY"] = f.read().strip()
     except FileNotFoundError:
-        print("Warning: No API key found at ~/.anthropic_api_key")
+        ...
 
-# Initialize client
+if "OPENAI_API_KEY" not in os.environ:
+    key_path = os.path.expanduser("~/.openai_api_key")
+    try:
+        with open(key_path, "r") as f:
+            os.environ["OPENAI_API_KEY"] = f.read().strip()
+    except FileNotFoundError:
+        ...
+
+if "OPENROUTER_API_KEY" not in os.environ:
+    key_path = os.path.expanduser("~/.openrouter_api_key")
+    try:
+        with open(key_path, "r") as f:
+            os.environ["OPENROUTER_API_KEY"] = f.read().strip()
+    except FileNotFoundError:
+        ...
+
+# Initialize clients
 anthropic_client = AsyncAnthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+if OPENAI_V1:
+    openai_client = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+    openrouter_client = AsyncOpenAI(
+        api_key=os.environ.get("OPENROUTER_API_KEY"),
+        base_url="https://openrouter.ai/api/v1",
+    )
+else:
+    # For openai < 1.0, set API keys globally
+    openai.api_key = os.environ.get("OPENAI_API_KEY")
+    openai_client = None
+    openrouter_client = None
 
 # Initialize cache
 response_cache = ResponseCache("caches/cache_multi_hop.json")
+
+# OpenAI models (chat API)
+OPENAI_CHAT_MODELS = {
+    "gpt-3.5-turbo-0125",
+    "gpt-4-0314",
+    "gpt-4-0613",
+    "gpt-4-0125-preview",
+    "gpt-4-turbo-2024-04-09",
+    "gpt-4-1106-preview",
+    "gpt-4o-2024-08-06",
+    "gpt-4o-2024-05-13",
+    "gpt-4.1-2025-04-14",
+    "gpt-5.1-2025-11-13",
+    "gpt-5.2-2025-12-11",
+}
+
+# OpenRouter models
+OPENROUTER_MODELS = {
+    "deepseek/deepseek-chat-v3-0324",
+    "deepseek/deepseek-v3.2",
+    "qwen/qwen3-235b-a22b",
+    "qwen/qwen3-235b-a22b-2507",
+    "qwen/qwen3-coder",
+    "qwen/qwen3-32b",
+    "moonshotai/kimi-k2",
+}
 
 # Cost tracking
 COST_TRACKER = {
@@ -236,8 +295,13 @@ def build_few_shot_messages(
     include_mappings: bool = False,
     mapping_position: str = "before",
     filler_tokens: None | int = None,
+    for_openai_chat: bool = False,
 ):
-    """Build the few-shot messages as user/assistant pairs."""
+    """Build the few-shot messages as user/assistant pairs.
+
+    Args:
+        for_openai_chat: If True, include "Answer:" at end of user message (for models without prefill support)
+    """
     messages = []
 
     for idx, problem in few_shot_problems:
@@ -248,6 +312,8 @@ def build_few_shot_messages(
             mapping_position=mapping_position,
             filler_tokens=filler_tokens,
         )
+        if for_openai_chat:
+            user_text += "\n\nAnswer:"
 
         messages.append(
             {
@@ -261,7 +327,7 @@ def build_few_shot_messages(
         messages.append(
             {
                 "role": "assistant",
-                "content": f"Answer: {answer}",
+                "content": f"Answer: {answer}" if not for_openai_chat else str(answer),
             }
         )
 
@@ -425,6 +491,10 @@ async def evaluate_problem(
     filler_tokens: None | int = None,
 ):
     """Evaluate a single problem."""
+    # Determine model type
+    is_openai_chat = model in OPENAI_CHAT_MODELS
+    is_openrouter = model in OPENROUTER_MODELS
+
     # Check if we need to modify few-shot set
     few_shot_problems = base_few_shot_problems
     modified_few_shot = False
@@ -442,29 +512,60 @@ async def evaluate_problem(
     few_shot_messages = build_few_shot_messages(
         few_shot_problems,
         repeat_problem=repeat_problem,
-        cache=not modified_few_shot,
+        cache=not modified_few_shot and not is_openai_chat and not is_openrouter,
         include_mappings=include_mappings,
         mapping_position=mapping_position,
         filler_tokens=filler_tokens,
+        for_openai_chat=is_openai_chat or is_openrouter,
     )
 
     max_tokens = 100
 
-    messages = few_shot_messages + [
-        {
-            "role": "user",
-            "content": build_user_message(
-                problem,
-                repeat_problem=repeat_problem,
-                include_mappings=include_mappings,
-                mapping_position=mapping_position,
-                filler_tokens=filler_tokens,
-            ),
-        },
-        {"role": "assistant", "content": "Answer:"},
-    ]
-
-    cache_key = {"model": model, "max_tokens": max_tokens, "messages": messages}
+    # Build messages/cache_key based on model type
+    if is_openai_chat or is_openrouter:
+        # For OpenAI/OpenRouter: use chat format but with "Answer:" in user message (no prefill)
+        # Convert messages to OpenAI format (simple string content)
+        openai_messages = []
+        for msg in few_shot_messages:
+            content = msg["content"]
+            if isinstance(content, list):
+                content = content[0]["text"]
+            openai_messages.append({"role": msg["role"], "content": content})
+        # Add current problem with "Answer:" at end
+        current_user_text = build_user_message(
+            problem,
+            repeat_problem=repeat_problem,
+            include_mappings=include_mappings,
+            mapping_position=mapping_position,
+            filler_tokens=filler_tokens,
+        )
+        current_user_text += "\n\nAnswer:"
+        openai_messages.append({"role": "user", "content": current_user_text})
+        if "gpt-5" in model:
+            cache_key = {
+                "model": model,
+                "max_completion_tokens": max_tokens,
+                "messages": openai_messages,
+                "reasoning_effort": "none",
+            }
+        else:
+            cache_key = {"model": model, "max_tokens": max_tokens, "messages": openai_messages}
+    else:
+        # For Anthropic: use original format with prefill
+        messages = few_shot_messages + [
+            {
+                "role": "user",
+                "content": build_user_message(
+                    problem,
+                    repeat_problem=repeat_problem,
+                    include_mappings=include_mappings,
+                    mapping_position=mapping_position,
+                    filler_tokens=filler_tokens,
+                ),
+            },
+            {"role": "assistant", "content": "Answer:"},
+        ]
+        cache_key = {"model": model, "max_tokens": max_tokens, "messages": messages}
 
     # Check cache
     cached_response = await response_cache.get(cache_key)
@@ -484,29 +585,81 @@ async def evaluate_problem(
                 max_retries = 8
                 for retry in range(max_retries):
                     try:
-                        response = await asyncio.wait_for(
-                            anthropic_client.messages.create(
-                                model=model,
-                                max_tokens=max_tokens,
-                                messages=messages,
-                                timeout=60.0,
-                                temperature=0.0,
-                            ),
-                            timeout=120.0,
-                        )
+                        if is_openrouter:
+                            # OpenRouter API
+                            if OPENAI_V1:
+                                response = await asyncio.wait_for(
+                                    openrouter_client.chat.completions.create(
+                                        **cache_key,
+                                        temperature=0.0,
+                                    ),
+                                    timeout=120.0,
+                                )
+                                response_text = response.choices[0].message.content.strip()
+                            else:
+                                # Old API - need to set api_base temporarily
+                                old_api_base = openai.api_base
+                                old_api_key = openai.api_key
+                                openai.api_base = "https://openrouter.ai/api/v1"
+                                openai.api_key = os.environ.get("OPENROUTER_API_KEY")
+                                try:
+                                    response = await asyncio.wait_for(
+                                        openai.ChatCompletion.acreate(
+                                            **cache_key,
+                                            temperature=0.0,
+                                        ),
+                                        timeout=120.0,
+                                    )
+                                    response_text = response.choices[0].message.content.strip()
+                                finally:
+                                    openai.api_base = old_api_base
+                                    openai.api_key = old_api_key
+                        elif is_openai_chat:
+                            # OpenAI chat API
+                            if OPENAI_V1:
+                                response = await asyncio.wait_for(
+                                    openai_client.chat.completions.create(
+                                        **cache_key,
+                                        temperature=0.0,
+                                    ),
+                                    timeout=120.0,
+                                )
+                                response_text = response.choices[0].message.content.strip()
+                            else:
+                                # Old API
+                                response = await asyncio.wait_for(
+                                    openai.ChatCompletion.acreate(
+                                        **cache_key,
+                                        temperature=0.0,
+                                    ),
+                                    timeout=120.0,
+                                )
+                                response_text = response.choices[0].message.content.strip()
+                        else:
+                            # Anthropic API
+                            response = await asyncio.wait_for(
+                                anthropic_client.messages.create(
+                                    model=model,
+                                    max_tokens=max_tokens,
+                                    messages=messages,
+                                    timeout=60.0,
+                                    temperature=0.0,
+                                ),
+                                timeout=120.0,
+                            )
 
-                        # Track costs
-                        if hasattr(response, "usage"):
-                            COST_TRACKER["input_tokens"] += response.usage.input_tokens
-                            COST_TRACKER["output_tokens"] += response.usage.output_tokens
-                            if hasattr(response.usage, "cache_read_input_tokens"):
-                                COST_TRACKER["cache_read_tokens"] += response.usage.cache_read_input_tokens or 0
-                            if hasattr(response.usage, "cache_creation_input_tokens"):
-                                COST_TRACKER["cache_creation_tokens"] += response.usage.cache_creation_input_tokens or 0
+                            # Track costs (Anthropic only)
+                            if hasattr(response, "usage"):
+                                COST_TRACKER["input_tokens"] += response.usage.input_tokens
+                                COST_TRACKER["output_tokens"] += response.usage.output_tokens
+                                if hasattr(response.usage, "cache_read_input_tokens"):
+                                    COST_TRACKER["cache_read_tokens"] += response.usage.cache_read_input_tokens or 0
+                                if hasattr(response.usage, "cache_creation_input_tokens"):
+                                    COST_TRACKER["cache_creation_tokens"] += response.usage.cache_creation_input_tokens or 0
 
-                        for block in response.content:
-                            if block.type == "text":
-                                response_text = block.text
+                            for block in response.content:
+                                if block.type == "text":
+                                    response_text = block.text
 
                         # Cache response
                         await response_cache.set(cache_key, {"response": response_text})
@@ -536,6 +689,8 @@ async def evaluate_problem(
             # Check answer
             correct_answer = problem["answer"]
             is_correct = check_answer(response_text, correct_answer)
+
+            print(f"{normalize_answer(str(response_text))=} {normalize_answer(str(correct_answer))=}")
 
             result = {
                 "problem_index": problem_index,
@@ -748,11 +903,26 @@ async def run_evaluation(
 def parse_model_name(model_shorthand):
     """Convert model shorthand to full model ID."""
     model_map = {
+        # Anthropic models
         "opus-4-5": "claude-opus-4-5-20251101",
         "opus-4": "claude-opus-4-20250514",
         "sonnet-4": "claude-sonnet-4-20250514",
         "sonnet-4-5": "claude-sonnet-4-5-20250929",
         "haiku-3-5": "claude-3-5-haiku-20241022",
+        # OpenAI models
+        "gpt-3.5": "gpt-3.5-turbo-0125",
+        "gpt-4": "gpt-4-0314",
+        "gpt-4o": "gpt-4o-2024-05-13",
+        "gpt-4.1": "gpt-4.1-2025-04-14",
+        "gpt-5.1": "gpt-5.1-2025-11-13",
+        "gpt-5.2": "gpt-5.2-2025-12-11",
+        # OpenRouter models
+        "deepseek-v3": "deepseek/deepseek-chat-v3-0324",
+        "deepseek-v3.2": "deepseek/deepseek-v3.2",
+        "qwen3-235b": "qwen/qwen3-235b-a22b-2507",
+        "qwen3-480b": "qwen/qwen3-coder",
+        "qwen3-32b": "qwen/qwen3-32b",
+        "kimi-k2": "moonshotai/kimi-k2",
     }
     return model_map.get(model_shorthand, model_shorthand)
 

@@ -9,7 +9,7 @@ import os
 from datetime import datetime
 
 # Models to evaluate
-MODELS = ["opus-4-5", "opus-4", "sonnet-4", "sonnet-4-5", "haiku-3-5"]
+MODELS = ["opus-4-5", "opus-4", "sonnet-4", "sonnet-4-5", "haiku-3-5", "qwen3-235b", "gpt-4.1", "gpt-5.2", "deepseek-v3"]
 
 # Repeat conditions
 REPEATS = [None, 5]
@@ -54,6 +54,7 @@ def run_eval(model, repeat, input_key="all", verbosity=2, filler=None):
         "-m", model,
         "-i", input_file,
         "-o", output_file,
+        # "-c", "300",
         "-v", str(verbosity),
     ]
     if repeat:
