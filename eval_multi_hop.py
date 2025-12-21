@@ -690,7 +690,7 @@ async def evaluate_problem(
             correct_answer = problem["answer"]
             is_correct = check_answer(response_text, correct_answer)
 
-            print(f"{normalize_answer(str(response_text))=} {normalize_answer(str(correct_answer))=}")
+            # print(f"{normalize_answer(str(response_text))=} {normalize_answer(str(correct_answer))=}")
 
             result = {
                 "problem_index": problem_index,
