@@ -28,13 +28,9 @@ class ResponseCache:
     def load_cache(self):
         """Load cache from disk."""
         if os.path.exists(self.cache_file):
-            try:
-                with open(self.cache_file, "r", encoding="utf-8") as f:
-                    self.cache = json.load(f)
-                print(f"Loaded {len(self.cache)} cached responses from {self.cache_file}")
-            except Exception as e:
-                print(f"Warning: Could not load cache: {e}")
-                self.cache = {}
+            with open(self.cache_file, "r", encoding="utf-8") as f:
+                self.cache = json.load(f)
+            print(f"Loaded {len(self.cache)} cached responses from {self.cache_file}")
         else:
             self.cache = {}
 
