@@ -1,4 +1,4 @@
-# Recent LLMs can do 2-hop and 3-hop latent reasoning on natural facts
+# Recent LLMs can do 2-hop and 3-hop no CoT reasoning on natural facts
 
 [Prior work](https://arxiv.org/abs/2411.16353) has examined 2-hop latent (as in, no Chain-of-Thought) reasoning (e.g., "What is the atomic number of the age at which Tesla died?") and found that LLM performance was limited aside from spurious successes (from memorization and shortcuts).
 I find that recent LLMs can now do 2-hop and 3-hop latent reasoning with moderate accuracy.
@@ -6,6 +6,7 @@ I construct a new dataset for evaluating n-hop latent reasoning on natural facts
 On this dataset, I find that Gemini 3 Pro gets 60% of 2-hop questions right and 34% of 3-hop questions right.
 Opus 4 performs better than Opus 4.5 at this task; Opus 4 gets 31% of 2-hop questions right and 7% of 3-hop questions right.
 All models I evaluate have chance or near chance accuracy on 4-hop questions.
+Older models perform much worse; for instance, GPT-4 gets 9.7% of 2-hop questions right and 3.9% of 3-hop questions right.
 
 ![](https://raw.githubusercontent.com/rgreenblatt/multi_hop/master/eval_results/figure1.png)
 

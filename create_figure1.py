@@ -21,7 +21,7 @@ ax1 = fig.add_subplot(gs[0])
 ax1.set_xlim(0, 10.5)
 ax1.set_ylim(0, 10)
 ax1.axis('off')
-ax1.set_title('Multi-Hop Latent Reasoning Task', fontsize=14, fontweight='bold', pad=10)
+ax1.set_title('Multi-Hop No Chain-of-Thought Reasoning Task', fontsize=14, fontweight='bold', pad=10)
 
 # Colors
 bracket_color = '#888888'
@@ -116,7 +116,7 @@ ax1.text(answer_x_3 + 0.65, answer_y_end_3, '23', fontsize=10, ha='left', va='ce
          color=answer_color, fontweight='bold')
 
 # Add note about latent reasoning
-ax1.text(5, 0.6, 'Models must solve in a single forward pass (no CoT)',
+ax1.text(5, 0.6, 'Models must solve in a single forward pass (no chain-of-thought)',
          fontsize=10, ha='center', va='center', style='italic', color='#555')
 
 # Legend for colors
@@ -132,29 +132,36 @@ ax1.legend(handles=[eval_patch, answer_patch], loc='lower left', fontsize=9, fra
 # ============================================================================
 ax2 = fig.add_subplot(gs[1])
 
-# Data: Gemini 3 Pro and Opus 4 with f=300, grouped by hop
+# Data: Gemini 3 Pro, Opus 4, and GPT-4 with f=300, grouped by hop
 hops = ['2-hop', '3-hop']
 gemini_acc = [60.1, 34.3]
 opus_acc = [30.9, 7.0]
+gpt4_acc = [9.7, 3.9]
 
 x = np.arange(len(hops))
-width = 0.35
+width = 0.25
 
 # Colors - one per model
 color_gemini = '#0F9D58'  # Green for Gemini
 color_opus = '#D97757'    # Anthropic orange for Opus
+color_gpt4 = '#6B5B95'    # Purple for GPT-4
 
-bars1 = ax2.bar(x - width/2, gemini_acc, width, label='Gemini 3 Pro', color=color_gemini, edgecolor='#0B8043', linewidth=1.5)
-bars2 = ax2.bar(x + width/2, opus_acc, width, label='Opus 4', color=color_opus, edgecolor='#B85A3B', linewidth=1.5)
+bars1 = ax2.bar(x - width, gemini_acc, width, label='Gemini 3 Pro', color=color_gemini, edgecolor='#0B8043', linewidth=1.5)
+bars2 = ax2.bar(x, opus_acc, width, label='Opus 4', color=color_opus, edgecolor='#B85A3B', linewidth=1.5)
+bars3 = ax2.bar(x + width, gpt4_acc, width, label='GPT-4', color=color_gpt4, edgecolor='#574779', linewidth=1.5)
 
 # Add value labels on bars
 for bar, acc in zip(bars1, gemini_acc):
     ax2.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 1.5,
-             f'{acc:.1f}%', ha='center', va='bottom', fontsize=12, fontweight='bold')
+             f'{acc:.1f}%', ha='center', va='bottom', fontsize=11, fontweight='bold')
 
 for bar, acc in zip(bars2, opus_acc):
     ax2.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 1.5,
-             f'{acc:.1f}%', ha='center', va='bottom', fontsize=12, fontweight='bold')
+             f'{acc:.1f}%', ha='center', va='bottom', fontsize=11, fontweight='bold')
+
+for bar, acc in zip(bars3, gpt4_acc):
+    ax2.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 1.5,
+             f'{acc:.1f}%', ha='center', va='bottom', fontsize=11, fontweight='bold')
 
 # Customize axes
 ax2.set_ylabel('Accuracy (%)', fontsize=12, fontweight='bold')
@@ -176,7 +183,7 @@ ax2.text(0.5, -0.12, '(4-hop accuracy is near chance for all models)',
          transform=ax2.transAxes, fontsize=9, ha='center', style='italic', color='#666')
 
 # Add main figure title
-fig.suptitle('Recent LLMs can do 2-hop and 3-hop latent reasoning on natural facts',
+fig.suptitle('Recent LLMs can do 2-hop and 3-hop no Chain-of-Thought reasoning on natural facts',
              fontsize=14, fontweight='bold', y=1.02, x=0.52)
 
 plt.savefig('eval_results/figure1.png', dpi=300, bbox_inches='tight', facecolor='white')
