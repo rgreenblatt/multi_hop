@@ -87,10 +87,11 @@ MODEL_NAMES = {
     "claude-sonnet-4-5-20250929": "Sonnet 4.5",
     "claude-3-5-haiku-20241022": "Haiku 3.5",
     "qwen/qwen3-235b-a22b-2507": "Qwen3 235B",
-    "gpt-4.1-2025-04-14": "GPT-4.1",
-    "gpt-5.1-2025-11-13": "GPT-5.1",
-    "gpt-5.2-2025-12-11": "GPT-5.2",
     "deepseek/deepseek-chat-v3-0324": "DeepSeek V3",
+    "gpt-5.2-2025-12-11": "GPT-5.2",
+    "gpt-5.1-2025-11-13": "GPT-5.1",
+    "gpt-4.1-2025-04-14": "GPT-4.1",
+    "gpt-4-0314": "GPT-4",
     "google/gemini-2.5-pro": "Gemini 2.5 Pro",
     "google/gemini-3-pro-preview": "Gemini 3 Pro",
 }
@@ -103,10 +104,11 @@ MODEL_SHORTHAND = {
     "Sonnet 4.5": "sonnet-4-5",
     "Haiku 3.5": "haiku-3-5",
     "Qwen3 235B": "qwen3-235b",
-    "GPT-4.1": "gpt-4.1",
-    "GPT-5.1": "gpt-5.1",
-    "GPT-5.2": "gpt-5.2",
     "DeepSeek V3": "deepseek-v3",
+    "GPT-5.2": "gpt-5.2",
+    "GPT-5.1": "gpt-5.1",
+    "GPT-4.1": "gpt-4.1",
+    "GPT-4": "gpt-4",
     "Gemini 2.5 Pro": "gemini-2.5-pro",
     "Gemini 3 Pro": "gemini-3-pro",
 }
@@ -118,10 +120,11 @@ MODEL_COLORS = {
     "Sonnet 4.5": "#9B59B6",
     "Haiku 3.5": "#F39C12",
     "Qwen3 235B": "#1ABC9C",
-    "GPT-4.1": "#7F8C8D",
-    "GPT-5.1": "#00ACC1",
-    "GPT-5.2": "#34495E",
     "DeepSeek V3": "#E91E63",
+    "GPT-5.2": "#34495E",
+    "GPT-5.1": "#00ACC1",
+    "GPT-4.1": "#7F8C8D",
+    "GPT-4": "#795548",
     "Gemini 2.5 Pro": "#4285F4",
     "Gemini 3 Pro": "#0F9D58",
 }
@@ -1224,7 +1227,7 @@ def plot_mapping_comparison():
 EXTENDED_PLOT_MODEL_ORDER = [
     "Gemini 3 Pro", "Gemini 2.5 Pro",
     "Opus 4.5", "Opus 4", "Sonnet 4", "Sonnet 4.5", "Haiku 3.5",
-    "GPT-4.1", "GPT-5.1", "GPT-5.2", "DeepSeek V3", "Qwen3 235B",
+    "GPT-5.2", "GPT-5.1", "GPT-4.1", "GPT-4", "Qwen3 235B", "DeepSeek V3",
 ]
 
 
@@ -1281,21 +1284,26 @@ def plot_all_models_2_3_hop():
         if not configs:
             continue
 
-        # For each hop, find the best accuracy across configs
+        # Find the best config based on 2-hop accuracy, then use it for both hops
+        best_acc_2hop = -1
+        best_config_name = None
+        best_config_hop_stats = None
+        for config_name, hop_stats in configs:
+            stats_2hop = hop_stats.get("2", {})
+            if stats_2hop:
+                acc = stats_2hop.get("correct", 0) / stats_2hop.get("total", 1)
+                if acc > best_acc_2hop:
+                    best_acc_2hop = acc
+                    best_config_name = config_name
+                    best_config_hop_stats = hop_stats
+
+        # Use the best config's stats for all hops
         best_hop_stats = {}
         best_configs = {}
         for h in hops:
-            best_acc = -1
-            best_config_name = None
-            for config_name, hop_stats in configs:
-                stats_h = hop_stats.get(str(h), {})
-                if stats_h:
-                    acc = stats_h.get("correct", 0) / stats_h.get("total", 1)
-                    if acc > best_acc:
-                        best_acc = acc
-                        best_hop_stats[str(h)] = stats_h
-                        best_config_name = config_name
-            if str(h) not in best_hop_stats:
+            if best_config_hop_stats:
+                best_hop_stats[str(h)] = best_config_hop_stats.get(str(h), {})
+            else:
                 best_hop_stats[str(h)] = {}
             best_configs[h] = best_config_name
 
