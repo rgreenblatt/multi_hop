@@ -24,10 +24,12 @@ This is a very large effect, nearly doubling performance for Gemini 3 Pro on 3-h
 ![](https://raw.githubusercontent.com/rgreenblatt/multi_hop/master/eval_results/filler_effect.png)
 
 Note that Gemini 3 Pro doesn't support disabling reasoning, so I use a somewhat hacky evaluation approach where I prefill the model on the OpenRouter API and consider responses incorrect if they return any reasoning.
-This evaluation approach might degrade performance via being very out-of-distribution and there is some small chance that these results significantly overestimate no Chain-of-Thought (CoT) performance because some fraction of the time the model is actually reasoning but OpenRouter isn't sending back the reasoning field.
+This evaluation approach might degrade performance via being very out-of-distribution and there is some small chance that these results significantly overestimate no Chain-of-Thought (CoT) performance because some fraction of the time the model is actually reasoning but OpenRouter isn't sending back the reasoning field.[^notesonreason]
 This also applies to evaluations of Gemini 2.5 Pro.
 I always use 20-shot prompting for Gemini models as this greatly reduces the rate at which these models reason.
 I discuss how I do no-CoT evaluations on Gemini 3/2.5 Pro in [this appendix of my prior post](https://www.lesswrong.com/posts/Ty5Bmg7P6Tciy2uj2/measuring-no-cot-math-time-horizon-single-forward-pass#Appendix__scores_for_Gemini_3_Pro).
+
+[^notesonreason]: I think significantly overestimating Gemini 3 Pro performance due to something like this is a bit less than 10% likely. OpenRouter presumably has the necessary information to better understand this question. Some evidence against this being a spurious result due to reasoning that isn't returned: using this approach, I see low/chance performance on tasks that are very hard to do without CoT (e.g. 4-hop) and results in other cases seem very consistent with this being no-CoT. I restrict completion tokens to be <= 20, which would make reasoning much less useful (dampening the effects of potential spurious reasoning). When I lift this limit to be much higher, this doesn't change performance substantially, adding more evidence that this isn't a problem (or at least isn't a problem that has large effects on the results).
 
 Performance (at 2-hop latent reasoning) increases smoothly with filler tokens and problem repeats:
 
