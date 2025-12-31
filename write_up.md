@@ -44,7 +44,7 @@ I also evaluate a broader range of models on this task (to save space, I just sh
 
 ![](https://raw.githubusercontent.com/rgreenblatt/multi_hop/master/eval_results/all_models_2_3_hop.png)
 
-I test a simple and algorithmic version of in-context n-hop accuracy where I give Opus 4.5[^eval] a table/mapping for each hop showing all possible settings for that fact (e.g., for "Who won the Nobel prize for physics in year X?", the table would be "1901: Wilhelm Conrad Röntgen, 1904: Lord Rayleigh, ...").
+I test a simple and algorithmic version of in-context n-hop accuracy where I give Opus 4.5[^eval] a table/mapping for each hop showing all possible settings for that fact (e.g., for "Who won the Nobel Prize for Physics in year X?", the table would be "1901: Wilhelm Conrad Röntgen, 1904: Lord Rayleigh, ...").
 I test putting these tables before or after the problem and also test repeating the problem and the tables:
 
 ![](https://raw.githubusercontent.com/rgreenblatt/multi_hop/master/eval_results/mapping_comparison_opus-4-5.png)
