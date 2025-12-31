@@ -39,10 +39,12 @@ def wilson_score_interval(successes, n, confidence=0.95):
     return max(0, center - margin), min(1, center + margin)
 
 
-def load_individual_results(model_shorthand, repeat=None):
+def load_individual_results(model_shorthand, repeat=None, filler=None):
     """Load individual problem results from eval file."""
-    repeat_suffix = f"_r{repeat}" if repeat else ""
-    filepath = f"eval_results/eval_{model_shorthand}_all{repeat_suffix}.json"
+    suffix = f"_r{repeat}" if repeat else ""
+    suffice = f"_f{filler}" if filler is not None else suffix
+
+    filepath = f"eval_results/eval_{model_shorthand}_all{suffix}.json"
 
     if not os.path.exists(filepath):
         return None
@@ -86,8 +88,11 @@ MODEL_NAMES = {
     "claude-3-5-haiku-20241022": "Haiku 3.5",
     "qwen/qwen3-235b-a22b-2507": "Qwen3 235B",
     "gpt-4.1-2025-04-14": "GPT-4.1",
+    "gpt-5.1-2025-11-13": "GPT-5.1",
     "gpt-5.2-2025-12-11": "GPT-5.2",
     "deepseek/deepseek-chat-v3-0324": "DeepSeek V3",
+    "google/gemini-2.5-pro": "Gemini 2.5 Pro",
+    "google/gemini-3-pro-preview": "Gemini 3 Pro",
 }
 
 # Reverse mapping for loading individual results
@@ -99,8 +104,11 @@ MODEL_SHORTHAND = {
     "Haiku 3.5": "haiku-3-5",
     "Qwen3 235B": "qwen3-235b",
     "GPT-4.1": "gpt-4.1",
+    "GPT-5.1": "gpt-5.1",
     "GPT-5.2": "gpt-5.2",
     "DeepSeek V3": "deepseek-v3",
+    "Gemini 2.5 Pro": "gemini-2.5-pro",
+    "Gemini 3 Pro": "gemini-3-pro",
 }
 
 MODEL_COLORS = {
@@ -111,8 +119,11 @@ MODEL_COLORS = {
     "Haiku 3.5": "#F39C12",
     "Qwen3 235B": "#1ABC9C",
     "GPT-4.1": "#7F8C8D",
+    "GPT-5.1": "#00ACC1",
     "GPT-5.2": "#34495E",
     "DeepSeek V3": "#E91E63",
+    "Gemini 2.5 Pro": "#4285F4",
+    "Gemini 3 Pro": "#0F9D58",
 }
 
 # Model release dates (approximate)
@@ -290,87 +301,90 @@ def plot_accuracy_by_hops():
 
 
 def plot_repeat_effect():
-    """Plot the effect of repeating questions with p-values from paired t-tests."""
+    """Plot the effect of repeating questions with p-values from paired t-tests, by hop level."""
     data_by_model = extract_data()
-    # Filter to main plot models only
-    data_by_model = {k: v for k, v in data_by_model.items() if k in MAIN_PLOT_MODELS}
+    # Filter to main plot models + GPT-4.1, excluding Haiku
+    repeat_effect_models = [m for m in MAIN_PLOT_MODELS if m != "Haiku 3.5"] + ["GPT-4.1"]
+    data_by_model = {k: v for k, v in data_by_model.items() if k in repeat_effect_models}
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+    hops = [2, 3]
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
 
-    models = list(data_by_model.keys())
+    models = [m for m in repeat_effect_models if m in data_by_model]
     x = np.arange(len(models))
     width = 0.35
 
-    baseline_accs = []
-    repeat_accs = []
-    p_values = []
+    for idx, hop in enumerate(hops):
+        ax = axes[idx]
+        ax.set_title(f"{hop}-Hop Problems", fontsize=14)
 
-    for model in models:
-        baseline_accs.append(data_by_model[model].get("baseline", {}).get("accuracy", 0) * 100)
-        repeat_accs.append(data_by_model[model].get("r5", {}).get("accuracy", 0) * 100)
+        baseline_accs = []
+        repeat_accs = []
+        p_values = []
 
-        # Load individual results and compute p-value
-        model_shorthand = MODEL_SHORTHAND.get(model)
-        if model_shorthand:
-            results_baseline = load_individual_results(model_shorthand, repeat=None)
-            results_repeat = load_individual_results(model_shorthand, repeat=5)
+        for model in models:
+            # Get hop-specific accuracies
+            baseline_stats = data_by_model[model].get("baseline", {}).get("hop_stats", {}).get(str(hop), {})
+            repeat_stats = data_by_model[model].get("r5", {}).get("hop_stats", {}).get(str(hop), {})
 
-            if results_baseline and results_repeat:
-                t_stat, p_value = paired_t_test(results_baseline, results_repeat)
-                p_values.append(p_value)
+            baseline_acc = baseline_stats.get("correct", 0) / baseline_stats.get("total", 1) * 100 if baseline_stats else 0
+            repeat_acc = repeat_stats.get("correct", 0) / repeat_stats.get("total", 1) * 100 if repeat_stats else 0
+
+            baseline_accs.append(baseline_acc)
+            repeat_accs.append(repeat_acc)
+
+            # Load individual results and compute p-value for this hop
+            model_shorthand = MODEL_SHORTHAND.get(model)
+            if model_shorthand:
+                results_baseline = load_individual_results(model_shorthand, repeat=None)
+                results_repeat = load_individual_results(model_shorthand, repeat=5)
+
+                if results_baseline and results_repeat:
+                    # Filter by hop level
+                    results_baseline_hop = [r for r in results_baseline if r.get("hops") == hop]
+                    results_repeat_hop = [r for r in results_repeat if r.get("hops") == hop]
+                    if results_baseline_hop and results_repeat_hop:
+                        _, p_value = paired_t_test(results_baseline_hop, results_repeat_hop)
+                        p_values.append(p_value)
+                    else:
+                        p_values.append(None)
+                else:
+                    p_values.append(None)
             else:
                 p_values.append(None)
-        else:
-            p_values.append(None)
 
-    bars1 = ax.bar(x - width / 2, baseline_accs, width, label="Baseline (r=1)", color="#3498DB")
-    bars2 = ax.bar(x + width / 2, repeat_accs, width, label="Repeat (r=5)", color="#E74C3C")
+        bars1 = ax.bar(x - width / 2, baseline_accs, width, label="r=1", color="#3498DB")
+        bars2 = ax.bar(x + width / 2, repeat_accs, width, label="r=5", color="#E74C3C")
 
-    # Add value labels and p-values
-    for i, (bar, acc) in enumerate(zip(bars1, baseline_accs)):
-        ax.text(
-            bar.get_x() + bar.get_width() / 2,
-            bar.get_height() + 0.5,
-            f"{acc:.1f}%",
-            ha="center",
-            va="bottom",
-            fontsize=10,
-        )
+        # Add value labels
+        for bar, acc in zip(bars1, baseline_accs):
+            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1, f"{acc:.1f}%",
+                    ha="center", va="bottom", fontsize=10)
 
-    for i, (bar, acc) in enumerate(zip(bars2, repeat_accs)):
-        ax.text(
-            bar.get_x() + bar.get_width() / 2,
-            bar.get_height() + 0.5,
-            f"{acc:.1f}%",
-            ha="center",
-            va="bottom",
-            fontsize=10,
-        )
+        for bar, acc in zip(bars2, repeat_accs):
+            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1, f"{acc:.1f}%",
+                    ha="center", va="bottom", fontsize=10)
 
-        # Add p-value annotation above the bar
-        p_val = p_values[i]
-        if p_val is not None:
-            if p_val < 0.001:
-                p_text = "p<0.001"
-            else:
-                p_text = f"p={p_val:.3f}"
-
-            # Draw line connecting the two bars (raise it higher to avoid overlap)
-            y_max = max(baseline_accs[i], repeat_accs[i]) + 4
+        # Add p-value annotations
+        for i in range(len(models)):
+            p_val = p_values[i]
+            y_max = max(baseline_accs[i], repeat_accs[i]) + 6
             ax.plot([x[i] - width / 2, x[i] + width / 2], [y_max, y_max], "k-", linewidth=1)
-            ax.text(x[i], y_max + 0.8, p_text, ha="center", va="bottom", fontsize=9)
+            if p_val is not None:
+                p_text = "p<0.001" if p_val < 0.001 else f"p={p_val:.3f}"
+            else:
+                p_text = "N/A"
+            ax.text(x[i], y_max + 1, p_text, ha="center", va="bottom", fontsize=9)
 
-    ax.set_xlabel("Model", fontsize=12)
-    ax.set_ylabel("Overall Accuracy (%)", fontsize=12)
-    ax.set_title(
-        "Effect of Repeating Question 5 Times on Multi-Hop Reasoning\n(with paired t-test p-values)", fontsize=14
-    )
-    ax.set_xticks(x)
-    ax.set_xticklabels(models)
-    ax.legend()
-    ax.set_ylim(0, 90)
-    ax.grid(axis="y", alpha=0.3)
+        ax.set_xlabel("Model", fontsize=12)
+        ax.set_ylabel("Accuracy (%)", fontsize=12)
+        ax.set_xticks(x)
+        ax.set_xticklabels([m.replace(" ", "\n") for m in models], fontsize=10)
+        ax.legend(fontsize=10)
+        ax.set_ylim(0, 105)
+        ax.grid(axis="y", alpha=0.3)
 
+    plt.suptitle("Effect of Repeating Question 5 Times (r=5 vs r=1)\n(with paired t-test p-values)", fontsize=14, fontweight="bold")
     plt.tight_layout()
     plt.savefig("eval_results/repeat_effect.png", dpi=150, bbox_inches="tight")
     plt.close()
@@ -1069,19 +1083,23 @@ def plot_significance_matrix_by_hop_filler():
 def analyze_performance_by_category(model_shorthand: str):
     """Analyze performance by problem type/category."""
     print("\n" + "=" * 80)
-    print(f"PERFORMANCE BY PROBLEM CATEGORY for {model_shorthand} (r=5)")
+    print(f"PERFORMANCE BY PROBLEM CATEGORY for {model_shorthand} (f=300)")
     print("=" * 80)
 
-    # Analyze each model's performance
-    results = load_individual_results(model_shorthand, repeat=5)
 
-    if not results:
+    # results_here_lst = [x for x in results if x.get("filler") == 300 and x["model"] == model_shorthand]
+    # assert len(results_here_lst) == 1, len(results_here_lst)
+    # # Analyze each model's performance
+    # results_here = results_here_lst[0]["results"]
+    results_here = load_individual_results(model_shorthand, filler=300)
+
+    if not results_here:
         return
 
-    # Group results by type
+    # Group results_here by type
     by_type = {}
     correct_examples = []
-    for r in results:
+    for r in results_here:
         prob_type = r["type"]
         if prob_type not in by_type:
             by_type[prob_type] = {"correct": 0, "total": 0, "examples": []}
@@ -1204,32 +1222,95 @@ def plot_mapping_comparison():
 
 # Preferred ordering for extended plots (all models)
 EXTENDED_PLOT_MODEL_ORDER = [
+    "Gemini 3 Pro", "Gemini 2.5 Pro",
     "Opus 4.5", "Opus 4", "Sonnet 4", "Sonnet 4.5", "Haiku 3.5",
-    "GPT-4.1", "GPT-5.2", "DeepSeek V3", "Qwen3 235B",
+    "GPT-4.1", "GPT-5.1", "GPT-5.2", "DeepSeek V3", "Qwen3 235B",
 ]
 
 
-def plot_all_models_2_3_hop():
-    """Plot accuracy for all models at r=5, showing only 2-hop and 3-hop."""
-    data_by_model = extract_data()
-    # Include all models that have r5 data
+def get_best_hop_stats_for_model(model_full_name, model_shorthand):
+    """Get best hop stats for a model from r=None, r=5, and f=300 configurations.
+    Returns tuple of (configs, best_config_per_hop) where best_config_per_hop maps hop -> config_name.
+    """
+    configs = []
 
+    # r=None (baseline)
+    for r in results:
+        if r.get("model") == model_full_name and r.get("repeat") is None and r.get("filler") is None:
+            configs.append(("r=1", r.get("hop_stats", {})))
+            break
+
+    # r=5
+    for r in results:
+        if r.get("model") == model_full_name and r.get("repeat") == 5 and r.get("filler") is None:
+            configs.append(("r=5", r.get("hop_stats", {})))
+            break
+
+    # f=300
+    summary = load_filler_summary(model_shorthand, 300)
+    if summary:
+        configs.append(("f=300", summary.get("hop_stats", {})))
+
+    return configs
+
+
+# Models with dark colors that need white text inside bars
+DARK_COLOR_MODELS = {"Sonnet 4.5", "GPT-5.2", "Gemini 3 Pro", "Opus 4", "Gemini 2.5 Pro"}
+
+
+def plot_all_models_2_3_hop():
+    """Plot accuracy for all models, showing best of r=None, r=5, f=300 for 2-hop and 3-hop."""
     fig, ax = plt.subplots(figsize=(14, 7))
 
     hops = [2, 3]
-    x = np.arange(len(hops)) * 1.2  # Reduced spacing between hop groups
+    x = np.arange(len(hops)) * 1.2
 
-    # Get models that have r5 data, ordered by EXTENDED_PLOT_MODEL_ORDER
-    models_with_r5 = [m for m in EXTENDED_PLOT_MODEL_ORDER if m in data_by_model and "r5" in data_by_model[m]]
-    # Add any remaining models not in the order list
-    models_with_r5 += [m for m, data in data_by_model.items() if "r5" in data and m not in models_with_r5]
-    n_models = len(models_with_r5)
+    # Build model data with best configuration per hop
+    model_best_data = {}
+    model_best_config = {}  # Track which config was best per hop
+    for model_display, model_short in MODEL_SHORTHAND.items():
+        model_full = None
+        for full, display in MODEL_NAMES.items():
+            if display == model_display:
+                model_full = full
+                break
+        if not model_full:
+            continue
+
+        configs = get_best_hop_stats_for_model(model_full, model_short)
+        if not configs:
+            continue
+
+        # For each hop, find the best accuracy across configs
+        best_hop_stats = {}
+        best_configs = {}
+        for h in hops:
+            best_acc = -1
+            best_config_name = None
+            for config_name, hop_stats in configs:
+                stats_h = hop_stats.get(str(h), {})
+                if stats_h:
+                    acc = stats_h.get("correct", 0) / stats_h.get("total", 1)
+                    if acc > best_acc:
+                        best_acc = acc
+                        best_hop_stats[str(h)] = stats_h
+                        best_config_name = config_name
+            if str(h) not in best_hop_stats:
+                best_hop_stats[str(h)] = {}
+            best_configs[h] = best_config_name
+
+        model_best_data[model_display] = best_hop_stats
+        model_best_config[model_display] = best_configs
+
+    # Order models
+    models_ordered = [m for m in EXTENDED_PLOT_MODEL_ORDER if m in model_best_data]
+    models_ordered += [m for m in model_best_data if m not in models_ordered]
+    n_models = len(models_ordered)
     width = 0.9 / n_models if n_models > 0 else 0.15
 
-    for i, model in enumerate(models_with_r5):
-        model_data = data_by_model[model]
-        repeat_data = model_data.get("r5", {})
-        hop_stats = repeat_data.get("hop_stats", {})
+    for i, model in enumerate(models_ordered):
+        hop_stats = model_best_data[model]
+        best_configs = model_best_config[model]
 
         accuracies = []
         for h in hops:
@@ -1242,7 +1323,6 @@ def plot_all_models_2_3_hop():
                 acc = 0
             accuracies.append(acc * 100)
 
-        # Center the bars around each hop position
         offset = (i - (n_models - 1) / 2) * width
         bars = ax.bar(
             x + offset,
@@ -1252,8 +1332,11 @@ def plot_all_models_2_3_hop():
             color=MODEL_COLORS.get(model, "gray"),
         )
 
-        # Add value labels
-        for bar, acc in zip(bars, accuracies):
+        # Determine text color based on bar darkness
+        text_color = "white" if model in DARK_COLOR_MODELS else "black"
+
+        for bar, acc, h in zip(bars, accuracies, hops):
+            # Accuracy label above bar
             ax.text(
                 bar.get_x() + bar.get_width() / 2,
                 bar.get_height() + 3,
@@ -1263,10 +1346,24 @@ def plot_all_models_2_3_hop():
                 fontsize=12,
                 rotation=90,
             )
+            # Best config label inside bar
+            config_name = best_configs.get(h, "")
+            if config_name and bar.get_height() > 8:  # Only show if bar is tall enough
+                ax.text(
+                    bar.get_x() + bar.get_width() / 2,
+                    bar.get_height() - 1,
+                    config_name,
+                    ha="center",
+                    va="top",
+                    fontsize=8,
+                    rotation=90,
+                    color=text_color,
+                    fontweight="bold",
+                )
 
     ax.set_xlabel("Number of Hops", fontsize=14)
     ax.set_ylabel("Accuracy (%)", fontsize=14)
-    ax.set_title("All Models: Accuracy by Hop Level (r=5)", fontsize=16)
+    ax.set_title("All Models: Best Accuracy by Hop Level (best of r=1, r=5, f=300)", fontsize=16)
     ax.set_xticks(x)
     ax.set_xticklabels([f"{h}-hop" for h in hops], fontsize=13)
     ax.legend(loc="upper right", fontsize=13)
@@ -1279,8 +1376,118 @@ def plot_all_models_2_3_hop():
     print("Saved: eval_results/all_models_2_3_hop.png")
 
 
+# Models that have f=300 data (from MODELS_FOR_FILLER in run_all_evals.py)
+FILLER_EFFECT_MODELS = reversed(["Opus 4.5", "Opus 4", "Gemini 2.5 Pro", "Gemini 3 Pro"])
+
+
+def plot_filler_effect():
+    """Plot comparison of f=None vs f=300 for models that have filler data."""
+    hops = [2, 3]
+
+    # Collect data for models with filler
+    model_data = {}
+    for model_display in FILLER_EFFECT_MODELS:
+        model_short = MODEL_SHORTHAND.get(model_display)
+        if not model_short:
+            continue
+
+        # Load f=None (baseline)
+        baseline_summary = load_filler_summary(model_short, None)
+        # Load f=300
+        filler_summary = load_filler_summary(model_short, 300)
+
+        if baseline_summary and filler_summary:
+            model_data[model_display] = {
+                "baseline": baseline_summary.get("hop_stats", {}),
+                "f300": filler_summary.get("hop_stats", {}),
+            }
+
+    if not model_data:
+        print("No filler data found for filler_effect plot")
+        return
+
+    # Create figure with subplots for each hop level
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+
+    for idx, hop in enumerate(hops):
+        ax = axes[idx]
+        ax.set_title(f"{hop}-Hop Problems", fontsize=14)
+
+        models = list(model_data.keys())
+        x = np.arange(len(models))
+        width = 0.35
+
+        baseline_accs = []
+        filler_accs = []
+
+        for model in models:
+            # Baseline (f=None)
+            baseline_stats = model_data[model]["baseline"].get(str(hop), {})
+            if baseline_stats:
+                baseline_acc = baseline_stats.get("correct", 0) / baseline_stats.get("total", 1) * 100
+            else:
+                baseline_acc = 0
+            baseline_accs.append(baseline_acc)
+
+            # f=300
+            filler_stats = model_data[model]["f300"].get(str(hop), {})
+            if filler_stats:
+                filler_acc = filler_stats.get("correct", 0) / filler_stats.get("total", 1) * 100
+            else:
+                filler_acc = 0
+            filler_accs.append(filler_acc)
+
+        bars1 = ax.bar(x - width / 2, baseline_accs, width, label="f=0 (baseline)", color="#3498DB")
+        bars2 = ax.bar(x + width / 2, filler_accs, width, label="f=300", color="#E74C3C")
+
+        # Add value labels
+        for bar, acc in zip(bars1, baseline_accs):
+            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1, f"{acc:.1f}%",
+                    ha="center", va="bottom", fontsize=10)
+        for bar, acc in zip(bars2, filler_accs):
+            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1, f"{acc:.1f}%",
+                    ha="center", va="bottom", fontsize=10)
+
+        # Calculate p-values and add annotations
+        for i, model in enumerate(models):
+            model_short = MODEL_SHORTHAND.get(model)
+            p_val = None
+            if model_short:
+                results_baseline = load_filler_results(model_short, None)
+                results_filler = load_filler_results(model_short, 300)
+                if results_baseline and results_filler:
+                    # Filter by hop level
+                    results_baseline_hop = [r for r in results_baseline if r.get("hops") == hop]
+                    results_filler_hop = [r for r in results_filler if r.get("hops") == hop]
+                    if results_baseline_hop and results_filler_hop:
+                        _, p_val = paired_t_test(results_baseline_hop, results_filler_hop)
+
+            y_max = max(baseline_accs[i], filler_accs[i]) + 6
+            ax.plot([x[i] - width / 2, x[i] + width / 2], [y_max, y_max], "k-", linewidth=1)
+            if p_val is not None:
+                p_text = "p<0.001" if p_val < 0.001 else f"p={p_val:.3f}"
+            else:
+                p_text = "N/A"
+            ax.text(x[i], y_max + 1, p_text, ha="center", va="bottom", fontsize=9)
+
+        ax.set_xlabel("Model", fontsize=12)
+        ax.set_ylabel("Accuracy (%)", fontsize=12)
+        ax.set_xticks(x)
+        ax.set_xticklabels([m.replace(" ", "\n") for m in models], fontsize=10)
+        ax.legend(fontsize=10)
+        ax.set_ylim(0, 105)
+        ax.grid(axis="y", alpha=0.3)
+
+    plt.suptitle("Effect of Filler Tokens (f=300) on Multi-Hop Reasoning", fontsize=16, fontweight="bold")
+    plt.tight_layout()
+    plt.savefig("eval_results/filler_effect.png", dpi=150, bbox_inches="tight")
+    plt.close()
+    print("Saved: eval_results/filler_effect.png")
+
+
 def main():
     os.makedirs("eval_results", exist_ok=True)
+
 
     print("Generating visualizations...")
     plot_accuracy_by_hops()
@@ -1288,6 +1495,7 @@ def main():
     plot_hop_decay()
     plot_repeat_effect_by_hops()
     plot_all_models_2_3_hop()
+    plot_filler_effect()
     plot_performance_vs_r()
     plot_significance_matrix_by_hop()
     plot_performance_vs_f()
@@ -1295,7 +1503,7 @@ def main():
     plot_mapping_comparison()
 
     create_summary_table()
-    # analyze_performance_by_category("opus-4")
+    # analyze_performance_by_category("gemini-3-pro")
     # calculate_costs()
 
 

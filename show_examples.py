@@ -10,10 +10,11 @@ from collections import defaultdict
 from pathlib import Path
 
 
-def load_results(model_shorthand, repeat=None):
+def load_results(model_shorthand, repeat=None, filler=None):
     """Load individual problem results from eval file."""
     repeat_suffix = f"_r{repeat}" if repeat else ""
-    filepath = f"eval_results/eval_{model_shorthand}{repeat_suffix}.json"
+    filler_suffix = f"_f{filler}" if filler else ""
+    filepath = f"eval_results/eval_{model_shorthand}_all{repeat_suffix}{filler_suffix}.json"
 
     if not Path(filepath).exists():
         print(f"Error: File not found: {filepath}")
@@ -122,13 +123,18 @@ Examples:
 
   # Show examples with custom random seed
   python show_examples.py -m opus-4-5 -r 5 -n 10 --seed 123
+
+  # Show examples with filler tokens
+  python show_examples.py -m opus-4-5 -f 300 -n 5
         """
     )
 
     parser.add_argument("-m", "--model", default="opus-4",
                        help="Model shorthand (default: opus-4)")
-    parser.add_argument("-r", "--repeat", type=int, default=5,
-                       help="Repeat count (default: 5)")
+    parser.add_argument("-r", "--repeat", type=int, default=None,
+                       help="Repeat count (default: None)")
+    parser.add_argument("-f", "--filler", type=int, default=None,
+                       help="Filler token count (default: None)")
     parser.add_argument("-n", "--num-examples", type=int, default=20,
                        help="Number of examples to show per category (default: 10)")
     parser.add_argument("--hop", type=int, choices=[2, 3, 4],
@@ -151,8 +157,8 @@ Examples:
     args = parser.parse_args()
 
     # Load results
-    print(f"Loading results for {args.model} (repeat={args.repeat})...")
-    results = load_results(args.model, args.repeat)
+    print(f"Loading results for {args.model} (repeat={args.repeat}, filler={args.filler})...")
+    results = load_results(args.model, args.repeat, args.filler)
 
     if results is None:
         return 1

@@ -9,10 +9,15 @@ import os
 from datetime import datetime
 
 # Models to evaluate
-MODELS = ["opus-4-5", "opus-4", "sonnet-4", "sonnet-4-5", "haiku-3-5", "qwen3-235b", "gpt-4.1", "gpt-5.2", "deepseek-v3"]
+MODELS = ["opus-4-5", "opus-4", "sonnet-4", "sonnet-4-5", "haiku-3-5", "qwen3-235b", "gpt-4.1", "gpt-5.1", "gpt-5.2", "deepseek-v3"]
 
 # Repeat conditions
 REPEATS = [None, 5]
+
+MODELS_FOR_FILLER = ["opus-4-5", "opus-4", "gemini-2.5-pro", "gemini-3-pro"]
+
+# Filler values to test
+FILLERS = [None, 300]
 
 # Extra repeat values for opus-4 only
 OPUS4_EXTRA_REPEATS = [2, 3, 10, 20, 40]
@@ -54,9 +59,11 @@ def run_eval(model, repeat, input_key="all", verbosity=2, filler=None):
         "-m", model,
         "-i", input_file,
         "-o", output_file,
-        # "-c", "300",
+        "-c", "300",
         "-v", str(verbosity),
     ]
+    if "gemini" in model:
+        cmd.extend(["--k-shot", "20"])
     if repeat:
         cmd.extend(["-r", str(repeat)])
     if filler:
@@ -103,6 +110,17 @@ def main():
                 results.append({
                     "model": model,
                     "repeat": repeat,
+                    "input": "all",
+                    **summary,
+                })
+
+    for model in MODELS_FOR_FILLER:
+        for filler in FILLERS:
+            summary = run_eval(model, repeat=None, input_key="all", filler=filler)
+            if summary:
+                results.append({
+                    "model": model,
+                    "filler": filler,
                     "input": "all",
                     **summary,
                 })
@@ -158,28 +176,54 @@ def main():
     print("SUMMARY OF ALL RUNS")
     print("="*60)
 
-    print(f"\n{'Model':<15} {'Repeat':<8} {'Total':<8} {'Correct':<8} {'Accuracy':<10}")
-    print("-" * 50)
+    # Calculate column widths dynamically
+    def get_val(r, key, default="-"):
+        v = r.get(key)
+        return str(v) if v is not None else default
+
+    col_model = max(len("Model"), max((len(get_val(r, "model", "unknown")) for r in results), default=5))
+    col_repeat = max(len("Repeat"), 6)
+    col_filler = max(len("Filler"), 6)
+    col_total = max(len("Total"), 6)
+    col_correct = max(len("Correct"), 7)
+    col_accuracy = max(len("Accuracy"), 8)
+
+    header = f"{'Model':<{col_model}}  {'Repeat':>{col_repeat}}  {'Filler':>{col_filler}}  {'Total':>{col_total}}  {'Correct':>{col_correct}}  {'Accuracy':>{col_accuracy}}"
+    print(f"\n{header}")
+    print("-" * len(header))
     for r in results:
-        repeat_str = str(r.get("repeat", "-")) if r.get("repeat") else "-"
-        print(f"{r.get('model', 'unknown'):<15} {repeat_str:<8} {r.get('total', 0):<8} {r.get('correct', 0):<8} {r.get('accuracy', 0)*100:.1f}%")
+        model_str = get_val(r, "model", "unknown")
+        repeat_str = get_val(r, "repeat")
+        filler_str = get_val(r, "filler")
+        total_str = str(r.get("total", 0))
+        correct_str = str(r.get("correct", 0))
+        accuracy_str = f"{r.get('accuracy', 0)*100:.1f}%"
+        print(f"{model_str:<{col_model}}  {repeat_str:>{col_repeat}}  {filler_str:>{col_filler}}  {total_str:>{col_total}}  {correct_str:>{col_correct}}  {accuracy_str:>{col_accuracy}}")
 
     # Print by hop level
     print("\n\nBY HOP LEVEL:")
-    print("-" * 80)
-    print(f"{'Model':<15} {'Repeat':<8} {'2-hop':<15} {'3-hop':<15} {'4-hop':<15}")
-    print("-" * 80)
+
+    def fmt_hop(hop_stats, h):
+        stats = hop_stats.get(str(h), {})
+        if stats:
+            return f"{stats.get('correct', 0)}/{stats.get('total', 0)} ({stats.get('correct', 0)/stats.get('total', 1)*100:.1f}%)"
+        return "-"
+
+    # Calculate hop column widths
+    col_2hop = max(len("2-hop"), max((len(fmt_hop(r.get("hop_stats", {}), 2)) for r in results), default=5))
+    col_3hop = max(len("3-hop"), max((len(fmt_hop(r.get("hop_stats", {}), 3)) for r in results), default=5))
+    col_4hop = max(len("4-hop"), max((len(fmt_hop(r.get("hop_stats", {}), 4)) for r in results), default=5))
+
+    header2 = f"{'Model':<{col_model}}  {'Repeat':>{col_repeat}}  {'Filler':>{col_filler}}  {'2-hop':>{col_2hop}}  {'3-hop':>{col_3hop}}  {'4-hop':>{col_4hop}}"
+    print("-" * len(header2))
+    print(header2)
+    print("-" * len(header2))
     for r in results:
-        repeat_str = str(r.get("repeat", "-")) if r.get("repeat") else "-"
+        model_str = get_val(r, "model", "unknown")
+        repeat_str = get_val(r, "repeat")
+        filler_str = get_val(r, "filler")
         hop_stats = r.get("hop_stats", {})
-
-        def fmt_hop(h):
-            stats = hop_stats.get(str(h), {})
-            if stats:
-                return f"{stats.get('correct', 0)}/{stats.get('total', 0)} ({stats.get('correct', 0)/stats.get('total', 1)*100:.1f}%)"
-            return "-"
-
-        print(f"{r.get('model', 'unknown'):<15} {repeat_str:<8} {fmt_hop(2):<15} {fmt_hop(3):<15} {fmt_hop(4):<15}")
+        print(f"{model_str:<{col_model}}  {repeat_str:>{col_repeat}}  {filler_str:>{col_filler}}  {fmt_hop(hop_stats, 2):>{col_2hop}}  {fmt_hop(hop_stats, 3):>{col_3hop}}  {fmt_hop(hop_stats, 4):>{col_4hop}}")
 
     # Print cost summary
     print("\n" + "="*60)

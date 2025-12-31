@@ -6,4 +6,5 @@ AgeDataset-V1.csv
 .claude/
 compositional_questions.json
 compositional_element_questions.json
+.venv
 /data/
