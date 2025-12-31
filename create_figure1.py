@@ -50,10 +50,10 @@ y_2hop = 7.2
 ax1.text(0.3, y_2hop + 1.2, '2-hop example:', fontsize=12, fontweight='bold', va='bottom')
 
 # Question text on one line with cleaner spacing
-# "Who won Nobel Chemistry in (1900 + (atomic # of Tc))?"
+# "Who won Nobel Chemistry in [1900 + [atomic # of Tc]]?"
 # Character positions: 0         1         2         3         4         5
 #                      0123456789012345678901234567890123456789012345678901234
-question_2hop = 'Who won Nobel Chemistry in (1900 + (atomic # of Tc))?'
+question_2hop = 'Who won Nobel Chemistry in [1900 + [atomic # of Tc]]?'
 ax1.text(0.3, y_2hop, question_2hop, fontsize=11, fontfamily='monospace', va='center')
 
 # Approximate x scale: 0.3 + char_idx * 0.167 for fontsize 11 monospace
@@ -83,11 +83,11 @@ y_3hop = 3.8
 # Label
 ax1.text(0.3, y_3hop + 1.7, '3-hop example:', fontsize=12, fontweight='bold', va='bottom')
 
-# Question: Counties in state that joined the US #(age Chekhov died)th?
+# Question: Counties in state that joined the US [age Chekhov died]th?
 # Chekhov died at 44 → 44th state = Wyoming → Wyoming has 23 counties
 # Character positions: 0         1         2         3         4         5         6
 #                      01234567890123456789012345678901234567890123456789012345678901234
-question_3hop = 'Counties in state that joined the US (age Chekhov died)th?'
+question_3hop = 'Counties in state that joined the US [age Chekhov died]th?'
 ax1.text(0.3, y_3hop, question_3hop, fontsize=11, fontfamily='monospace', va='center')
 
 # Approximate x scale for fontsize 11
@@ -125,7 +125,7 @@ eval_patch = mpatches.Patch(facecolor='white', edgecolor=eval_color, linewidth=2
 answer_patch = mpatches.Patch(facecolor='white', edgecolor=answer_color, linewidth=2,
                               label='Final answer')
 ax1.legend(handles=[eval_patch, answer_patch], loc='lower left', fontsize=9, framealpha=0.9,
-           bbox_to_anchor=(0.0, 0.08))
+           bbox_to_anchor=(0.0, 0.14))
 
 # ============================================================================
 # RIGHT PANEL: Bar Chart of Core Results
@@ -148,7 +148,7 @@ color_gpt4 = '#6B5B95'    # Purple for GPT-4
 
 bars1 = ax2.bar(x - width, gemini_acc, width, label='Gemini 3 Pro', color=color_gemini, edgecolor='#0B8043', linewidth=1.5)
 bars2 = ax2.bar(x, opus_acc, width, label='Opus 4', color=color_opus, edgecolor='#B85A3B', linewidth=1.5)
-bars3 = ax2.bar(x + width, gpt4_acc, width, label='GPT-4', color=color_gpt4, edgecolor='#574779', linewidth=1.5)
+bars3 = ax2.bar(x + width, gpt4_acc, width, label='GPT-4*', color=color_gpt4, edgecolor='#574779', linewidth=1.5)
 
 # Add value labels on bars
 for bar, acc in zip(bars1, gemini_acc):
@@ -180,6 +180,10 @@ ax2.spines['right'].set_visible(False)
 
 # Add note about 4-hop
 ax2.text(0.5, -0.12, '(4-hop accuracy is near chance for all models)',
+         transform=ax2.transAxes, fontsize=9, ha='center', style='italic', color='#666')
+
+# Add asterisk note about GPT-4
+ax2.text(0.5, -0.16, "*GPT-4 results don't use filler tokens",
          transform=ax2.transAxes, fontsize=9, ha='center', style='italic', color='#666')
 
 # Add main figure title
