@@ -1,9 +1,9 @@
 # Recent LLMs can do 2-hop and 3-hop latent reasoning on natural facts
 
-[Prior work](https://arxiv.org/abs/2411.16353) has examined two-hop latent (as in, no Chain-of-Thought) reasoning (e.g., "What is the atomic number of the age at which Tesla died?") and found that LLM performance was limited aside from spurious successes (from memorization and shortcuts).
+[Prior work](https://arxiv.org/abs/2411.16353) has examined 2-hop latent (as in, no Chain-of-Thought) reasoning (e.g., "What is the atomic number of the age at which Tesla died?") and found that LLM performance was limited aside from spurious successes (from memorization and shortcuts).
 I find that recent LLMs can now do 2-hop and 3-hop latent reasoning with moderate accuracy.
-I construct a new dataset for evaluating n-hop latent  reasoning on natural facts (as in, facts that LLMs already know).
-On this dataset, I find that Gemini 3 Pro gets 60% of 2-hop question right and 34% of 3-hop questions right.
+I construct a new dataset for evaluating n-hop latent reasoning on natural facts (as in, facts that LLMs already know).
+On this dataset, I find that Gemini 3 Pro gets 60% of 2-hop questions right and 34% of 3-hop questions right.
 Opus 4 performs better than Opus 4.5 at this task; Opus 4 gets 31% of 2-hop questions right and 7% of 3-hop questions right.
 All models I evaluate have chance or near chance accuracy on 4-hop questions.
 
@@ -11,9 +11,9 @@ All models I evaluate have chance or near chance accuracy on 4-hop questions.
 
 I believe this new dataset I've created is the best existing dataset for evaluating n-hop latent reasoning.
 According to [Balesni et al.](https://arxiv.org/abs/2411.16353), prior datasets based on natural facts had issues with spurious successes while synthetic facts (introduced to the model with fine-tuning) seem to behave differently from facts learned in pretraining (success at composing these synthetic facts is much lower).
-When building this dataset, I tried somewhat hard to reduce factors that could spurious successes (and issues causing spurious failures), though my dataset has somewhat limited diversity.
+When building this dataset, I tried somewhat hard to reduce factors that could cause spurious successes (and issues causing spurious failures), though my dataset has somewhat limited diversity.
 
-I test the effect of filler tokens (additional content-less tokens added after the problem that the model could use for additional cognition) find that these greatly improve performance for the most capable models.
+I test the effect of filler tokens (additional content-less tokens added after the problem that the model could use for additional cognition) and find that these greatly improve performance for the most capable models.
 Repeating the problem multiple times also works similarly well to boost performance.
 I discuss the effects of filler tokens and repeats (and the prompting setup I use) more in my prior post "[Recent LLMs can use filler tokens or problem repeats to improve (no-CoT) math performance](https://www.lesswrong.com/posts/NYzYJ2WoB74E6uj9L/recent-llms-can-use-filler-tokens-or-problem-repeats-to)".
 The results I reported above for Gemini 3 Pro and Opus 4 use filler tokens counting from 1 to 300.
@@ -26,17 +26,19 @@ This is a very large effect, nearly doubling performance for Gemini 3 Pro on 3-h
 Note that Gemini 3 Pro doesn't support disabling reasoning, so I use a somewhat hacky evaluation approach where I prefill the model on the OpenRouter API and consider responses incorrect if they return any reasoning.
 This evaluation approach might degrade performance via being very out-of-distribution and there is some small chance that these results significantly overestimate no Chain-of-Thought (CoT) performance because some fraction of the time the model is actually reasoning but OpenRouter isn't sending back the reasoning field.
 This also applies to evaluations of Gemini 2.5 Pro.
-I always use 20-shot prompting for Gemini models as this greatly reduces the rate these models reason.
+I always use 20-shot prompting for Gemini models as this greatly reduces the rate at which these models reason.
 I discuss how I do no-CoT evaluations on Gemini 3/2.5 Pro in [this appendix of my prior post](https://www.lesswrong.com/posts/Ty5Bmg7P6Tciy2uj2/measuring-no-cot-math-time-horizon-single-forward-pass#Appendix__scores_for_Gemini_3_Pro).
 
-Performance (at two hop latent reasoning) increases smoothly with filler tokens and problem repeats:
+Performance (at 2-hop latent reasoning) increases smoothly with filler tokens and problem repeats:
 
 ![](https://raw.githubusercontent.com/rgreenblatt/multi_hop/master/eval_results/performance_vs_f_2hop.png)
 ![](https://raw.githubusercontent.com/rgreenblatt/multi_hop/master/eval_results/performance_vs_r_2hop.png)
 
 (I don't show Gemini models because for some settings of filler and repeats they return reasoning at much higher rates, making this graph much less meaningful.)
 
-I also evaluate a broader range of models on this task (just showing 2 hop and 3 hop results with whatever yields the best performance between filler counting to 300, 5 repeats, or no filler/repeats to save space):
+I also evaluate a broader range of models on this task (to save space, I just show 2-hop and 3-hop results with whatever yields the best performance out of filler counting to 300, 5 repeats, or no filler/repeats[^only]):
+
+[^only]: I display which of these was used on the bar if the bar is tall enough.
 
 ![](https://raw.githubusercontent.com/rgreenblatt/multi_hop/master/eval_results/all_models_2_3_hop.png)
 
@@ -53,9 +55,9 @@ Note that this is effectively a simple algorithmic task that doesn't depend on k
 
 Code (including code for generating the dataset) can be found at [github.com/rgreenblatt/multi_hop](https://github.com/rgreenblatt/multi_hop).
 
-# Appendix: resolving Leo Gao's manifold questions about fact composition
+# Appendix: resolving Leo Gao's Manifold questions about fact composition
 
-In January 2023, Leo Gao hypothesized that future LLMs would continue struggle to compose facts without Chain-of-Thought (CoT).
+In January 2023, Leo Gao hypothesized that future LLMs would continue to struggle to compose facts without Chain-of-Thought (CoT).
 He operationalized this with a [Manifold question](https://manifold.markets/LeoGao/will-a-big-transformer-lm-compose-t) about whether LLMs would be able to answer "What is the sum of the atomic number of uranium and the age at which Euler died?" without Chain-of-Thought (CoT) by 2026.
 Opus 4.5 and Gemini 3 Pro both reliably (128/128) answer this question correctly (at t=1.0) and with some prompting tricks Opus 4 and Sonnet 4 also answer this question correctly all of the time.[^repeat]
 He also operationalized a harder test: whether LLMs can answer "What is the name of the element with an atomic number equal to the sum of the age at which Euler died and the number of faces on a cube?".
@@ -71,10 +73,10 @@ The easier version of this dataset (corresponding to the easier question) consis
 I also test a generalized version of this where we add the result of N 1-hop questions in "Appendix: adding the result of N 1-hop questions".
 The harder version of this dataset (corresponding to the harder question) is of the form "What is the name of the element with an atomic number equal to fact1 + fact2" using the same distribution of facts as the easier dataset, except that I exclude atomic number facts.
 
-On the easier version of this dataset, Opus 4.5 gets 85.7% correct with 5 problem repeats (64.7% without few-shot prompting and without repeats) and Gemini 3 Pro gets 89.0% correct (86.7% without filler tokens, but still with 20-shot prompting).
+On the easier version of this dataset, Opus 4.5 gets 85.7% correct with 5 problem repeats (64.7% without few-shot prompting and without repeats) and Gemini 3 Pro gets 89.0% correct with filler tokens counting to 300 (86.7% without filler tokens, but still with 20-shot prompting).
 For specifically questions of the form "atomic number of X + age at which Y died", Gemini 3 Pro gets 91.5% correct and Opus 4.5 gets 85.1% indicating that the other types of questions are at a similar level of difficulty.
 
-On the harder version of this dataset, Opus 4.5 gets 7.3% correct (with 5 problem repeats) and Gemini 3 Pro gets 36.0% correct (with 300 filler tokens.
+On the harder version of this dataset, Opus 4.5 gets 7.3% correct (with 5 problem repeats) and Gemini 3 Pro gets 36.0% correct (with filler tokens counting to 300).
 Qualitatively, the harder version of my dataset is somewhat harder than Leo Gao's harder question (because "the number of faces on a cube" is particularly small and easy).
 So, Gemini 3 Pro getting that question right ~80% of the time is consistent with the model getting a bit lucky or with that question being a bit easier than the typical question on a distribution where the model gets 36.0% correct.
 
@@ -139,9 +141,9 @@ Here is a list of example problems with 1 example for each number of addends:
 
 # Appendix: Effects of using a different fact distribution
 
-I find that performance depends substantially on the distribution of the facts. When I use a subset of the 2 hop distribution that focuses on facts that I thought would be relatively more salient, performance for Opus 4 with filler tokens counting to 300 rises to 52% (from the 31% for the normal distribution). However, performance for Gemini 3 Pro actually falls to 53% from 60% (it's possible this is due to general flakiness in Gemini 3 Pro behavior as this change also alters the few-shot prompt, but I currently don't think this is likely to be the case). It appears like the main difference is that Gemini 3 Pro is much better at saliently knowing random facts about winners of awards.
+I find that performance depends substantially on the distribution of the facts. When I use a subset of the 2-hop distribution that focuses on facts that I thought would be relatively more salient, performance for Opus 4 with filler tokens counting to 300 rises to 52% (from the 31% for the normal distribution). However, performance for Gemini 3 Pro actually falls to 53% from 60% (it's possible this is due to general flakiness in Gemini 3 Pro behavior as this change also alters the few-shot prompt, but I currently don't think this is likely to be the case). My current best (low confidence) explanation is that Gemini 3 Pro is much better at saliently knowing random facts about winners of awards.
 
-# Appendix: what 3 hop questions is Gemini 3 Pro getting right?
+# Appendix: what 3-hop questions is Gemini 3 Pro getting right?
 
 Here are 10 3-hop questions that Gemini 3 Pro (with filler counting to 300) gets right:
 
@@ -175,13 +177,13 @@ I don't immediately see very strong patterns in what the model is getting right,
 
 The dataset is made by starting with a distribution of questions that produce an integer.
 Then, we have a bunch of possible ways of templating an n-hop question given an initial integer (e.g., asking the model to get the element with the atomic number corresponding to the answer to this question).
-Some of these add an additional hop (e.g., number X -> US state that was the X state to join the union -> state motto for that state) to create a 3-hop question.
-Additionally, some of these 2 hop or 3 hop questions produce an integer that can be chained into another question creating 3 hop or 4 hop questions.
+Some of these add an additional hop (e.g., number X -> US state that was the Xth state to join the union -> state motto for that state) to create a 3-hop question.
+Additionally, some of these 2-hop or 3-hop questions produce an integer that can be chained into another question creating 3-hop or 4-hop questions.
 
 I include a moderate number of different possible templates, but generally the questions aren't that diverse.
-I tried to ensure that each template results in many possible answers such that picking the most common/likely response yields a baseline accuracy <5% (and this worked, e.g., Haiku 3.5 has a very low performance on 2 hop questions despite presumably being decent at guessing); this also applies to intermediate values in the chain of hops.
-I also tried to ensure that questions are sufficiently unrelated that short circuiting / memorization is difficult.
-Relatedly, I tried to ensure that each step requires at least some retrieval rather than being sufficiently salient/common as to be practically detokenizable to the correct answer (e.g., for "On what day of the month was the 17th US president born?", the text "17th US president" practically can be instantly detokenized to "Andrew Johnson" as this is very common to introduce presidents like this making this question more like a 1 hop question than a 2 hop question).
+I tried to ensure that each template results in many possible answers such that picking the most common/likely response yields a baseline accuracy <5% (and this worked, e.g., Haiku 3.5 has very low performance on 2-hop questions despite presumably being decent at guessing); this also applies to intermediate values in the chain of hops.
+I also tried to ensure that questions are sufficiently unrelated that short-circuiting / memorization is difficult.
+Relatedly, I tried to ensure that each step requires at least some retrieval rather than being sufficiently salient/common as to be practically detokenizable to the correct answer (e.g., for "On what day of the month was the 17th US president born?", the text "17th US president" practically can be instantly detokenized to "Andrew Johnson" as this is very common to introduce presidents like this, making this question more like a 1-hop question than a 2-hop question).
 
 The templates I use are:
 
@@ -196,7 +198,7 @@ I avoid loops where we hit the same type of template twice in the same question 
 
 Here are random example questions for each hop level.
 
-2 hop:
+2-hop:
 
 * Who was Miss America for the (1900 + (At what age did Tupac Shakur die)) competition?
 * Who won the Nobel Prize in Chemistry in (1900 + (atomic number of Technetium))?
@@ -209,7 +211,7 @@ Here are random example questions for each hop level.
 * Who won the Nobel Prize in Literature in (1900 + (How many representatives does Michigan have in the US House of Representatives))?
 * Who won the Nobel Prize in Physics in (1900 + (How many representatives does Texas have in the US House of Representatives))?
 
-3 hop:
+3-hop:
 
 
 * On what day of the month was the Oscar Best Actor winner for a film released in (1900 + (At what age did Miguel de Cervantes die)) born?
@@ -223,7 +225,7 @@ Here are random example questions for each hop level.
 * How many county-equivalents are in the US State that was number (What is the number of plays Shakespeare wrote) to join the union?
 * On what day of the month was the Nobel Prize in Literature winner in (1900 + (How many representatives does Connecticut have in the US House of Representatives)) born?
 
-4 hop:
+4-hop:
 
 * What US state was number (On what day of the month was the best actress winner at the (At what age did Che Guevara die)th Academy Awards born) to join the union?
 * What element has atomic number (On what day of the month was the Nobel Prize in Literature winner in (1900 + (atomic number of Magnesium)) born)?
