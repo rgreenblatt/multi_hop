@@ -60,6 +60,9 @@ He operationalized this with a [Manifold question](https://manifold.markets/LeoG
 Opus 4.5 and Gemini 3 Pro both reliably (128/128) answer this question correctly (at t=1.0) and with some prompting tricks Opus 4 and Sonnet 4 also answer this question correctly all of the time.[^repeat]
 He also operationalized a harder test: whether LLMs can answer "What is the name of the element with an atomic number equal to the sum of the age at which Euler died and the number of faces on a cube?".
 I find that with filler tokens, Gemini 3 Pro can answer this question 80% of the time (without filler tokens, but still with 20-shot prompting it gets it right 20% of the time).[^temp]
+Opus 4 and Opus 4.5 always get this question wrong at t=1.0 (0/128).
+
+See [my earlier post about filler tokens and repeats](https://www.lesswrong.com/posts/NYzYJ2WoB74E6uj9L/recent-llms-can-use-filler-tokens-or-problem-repeats-to) for discussion of the effects of filler tokens and repeats (and the prompting setup I use).
 
 [^temp]: The original market asked about the response at t=0. However, if Gemini is evaluated using my prompt at t=0, I find that the model consistently reasons which invalidates the measurement. I do find that at t=0.3 (and resampling until the model no longer reasons) the model gets it right 8/8 times.
 
@@ -79,7 +82,7 @@ So, Gemini 3 Pro getting that question right ~80% of the time is consistent with
 
 Thus, I overall think Leo's prediction was wrong and both markets should resolve to yes: LLMs can now compose facts well enough to get both of these questions right and it looks like performance on latent multi-hop reasoning has been improving and will continue to improve.
 
-Code for these experiments can be found in a separate repo at [github.com/rgreenblatt/compose_facts](https://github.com/rgreenblatt/compose_facts).
+Code for these experiments can be found in a separate repo at [github.com/rgreenblatt/compose_facts](https://github.com/rgreenblatt/compose_facts). I've removed the datasets to reduce leakage, but you can regenerate them using `python3 create_compositional_dataset.py -n 300 && python3 create_compositional_dataset.py -n 300 --element-names`. PLEASE DON'T PUBLICLY POST THIS DATASET INCLUDING BY PUSHING IT TO GITHUB. (I also removed the correct answer in the "run_manifold_eval.py" file, you can manually edit this back in to run this file.) The [write_up.md](https://github.com/rgreenblatt/compose_facts/blob/master/write_up.md) file in this repo discusses more details of the dataset.
 
 ## Appendix: The effect of problem repeats and few-shots on these fact composition questions
 
