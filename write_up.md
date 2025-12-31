@@ -1,6 +1,6 @@
 # Recent LLMs can do 2-hop and 3-hop no CoT reasoning on natural facts
 
-[Prior work](https://arxiv.org/abs/2411.16353) has examined 2-hop latent (as in, no Chain-of-Thought) reasoning (e.g., "What is the atomic number of the age at which Tesla died?") and found that LLM performance was limited aside from spurious successes (from memorization and shortcuts).
+[Prior work](https://arxiv.org/abs/2411.16353) has examined 2-hop latent (as in, no Chain-of-Thought) reasoning (e.g., "What element has atomic number (the age at which Tesla died)?") and found that LLM performance was limited aside from spurious successes (from memorization and shortcuts).
 I find that recent LLMs can now do 2-hop and 3-hop latent reasoning with moderate accuracy.
 I construct a new dataset for evaluating n-hop latent reasoning on natural facts (as in, facts that LLMs already know).
 On this dataset, I find that Gemini 3 Pro gets 60% of 2-hop questions right and 34% of 3-hop questions right.
