@@ -64,16 +64,17 @@ Code (including code for generating the dataset) can be found at [github.com/rgr
 
 In January 2023, Leo Gao hypothesized that future LLMs would continue to struggle to compose facts without Chain-of-Thought (CoT).
 He operationalized this with a [Manifold question](https://manifold.markets/LeoGao/will-a-big-transformer-lm-compose-t) about whether LLMs would be able to answer "What is the sum of the atomic number of uranium and the age at which Euler died?" without Chain-of-Thought (CoT) by 2026.
-Opus 4.5 and Gemini 3 Pro both reliably (128/128) answer this question correctly (at t=1.0) and with either a  10-shot prompt or if we repeat the problem 5 times, Opus 4 and Sonnet 4 also answer this question correctly all of the time.[^repeat]
+Opus 4.5 and Gemini 3 Pro both reliably (128/128) answer this question correctly (at t=1.0) and with either a  10-shot prompt or if we repeat the problem 5 times, Opus 4 and Sonnet 4 also answer this question correctly all of the time.[^promptingdesc]
 He also operationalized a harder test: whether LLMs can answer "What is the name of the element with an atomic number equal to the sum of the age at which Euler died and the number of faces on a cube?".
-I find that with filler tokens, Gemini 3 Pro can answer this question 80% of the time (without filler tokens, but still with 20-shot prompting it gets it right 20% of the time).[^temp]
+I find that with filler tokens, Gemini 3 Pro can answer this question 80% of the time (without filler tokens, but still with 20-shot prompting it gets it right 20% of the time).[^temperature]
 Opus 4 and Opus 4.5 always get this question wrong at t=1.0 (0/128).
+
+[^promptingdesc]: Opus 4.5 doesn't require a k-shot prompt or repeats to consistently get this right. I always use a 20-shot prompt for Gemini and Gemini doesn't need anything else to get this problem right.
 
 See [my earlier post about filler tokens and repeats](https://www.lesswrong.com/posts/NYzYJ2WoB74E6uj9L/recent-llms-can-use-filler-tokens-or-problem-repeats-to) for discussion of the effects of filler tokens and repeats (and the prompting setup I use).
 
-[^repeat]: Opus 4.5 doesn't require a k-shot prompt or repeats to consistently get this right. I always use a 20-shot prompt for Gemini and Gemini doesn't need anything else to get this problem right.
 
-[^temp]: The original market asked about the response at t=0. However, if Gemini is evaluated using my prompt at t=0, I find that the model consistently reasons which invalidates the measurement. I do find that at t=0.3 (and resampling until the model no longer reasons) the model gets it right 8/8 times.
+[^temperature]: The original market asked about the response at t=0. However, if Gemini is evaluated using my prompt at t=0, I find that the model consistently reasons which invalidates the measurement. I do find that at t=0.3 (and resampling until the model no longer reasons) the model gets it right 8/8 times.
 
 I also construct a dataset of similar fact-composition questions to these questions.
 The easier version of this dataset (corresponding to the easier question) consists of the form "fact1 + fact2" where facts can be of the form "at what age did X die", "what is the atomic number of Y", or selected from a distribution of knowledge questions with an integer answer less than 1000 (e.g. "What is the number of plays Shakespeare wrote?").[^knowledge]
