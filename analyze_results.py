@@ -1371,7 +1371,7 @@ def plot_all_models_2_3_hop():
 
     ax.set_xlabel("Number of Hops", fontsize=14)
     ax.set_ylabel("Accuracy (%)", fontsize=14)
-    ax.set_title("All Models: Best Accuracy by Hop Level (best of r=1, r=5, f=300)", fontsize=16)
+    ax.set_title("All Models: Accuracy by Hop Level (best of r=1, r=5, f=300)", fontsize=16)
     ax.set_xticks(x)
     ax.set_xticklabels([f"{h}-hop" for h in hops], fontsize=13)
     ax.legend(loc="upper right", fontsize=13)

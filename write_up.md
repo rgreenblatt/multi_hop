@@ -1,4 +1,4 @@
-# Recent LLMs can do 2-hop and 3-hop no CoT reasoning on natural facts
+# Recent LLMs can do 2-hop and 3-hop latent (no CoT) reasoning on natural facts
 
 [Prior work](https://arxiv.org/abs/2411.16353) has examined 2-hop latent (as in, no Chain-of-Thought) reasoning (e.g., "What element has atomic number (the age at which Tesla died)?") and found that LLM performance was limited aside from spurious successes (from memorization and shortcuts).
 I find that recent LLMs can now do 2-hop and 3-hop latent reasoning with moderate accuracy.
@@ -45,8 +45,10 @@ I also evaluate a broader range of models on this task (to save space, I just sh
 
 ![](https://raw.githubusercontent.com/rgreenblatt/multi_hop/master/eval_results/all_models_2_3_hop.png)
 
-I test a simple and algorithmic version of in-context n-hop accuracy where I give Opus 4.5[^eval] a table/mapping for each hop showing all possible settings for that fact (e.g., for "Who won the Nobel Prize for Physics in year X?", the table would be "1901: Wilhelm Conrad Röntgen, 1904: Lord Rayleigh, ...").
+I test a simple and algorithmic version of in-context n-hop accuracy where I give Opus 4.5[^eval] a table/mapping for each hop showing all possible settings for that fact (e.g., for "Who won the Nobel Prize for Physics in year X?", the table would be "1901: Wilhelm Conrad Röntgen, 1904: Lord Rayleigh, ..."[^valid]).
 I test putting these tables before or after the problem and also test repeating the problem and the tables:
+
+[^valid]: This table skips 1902 and 1903 because the physics Nobel in those years had multiple winners or was otherwise problematic for some reason. I exclude years with potentially ambiguous answers and I only show possible years in the table.
 
 ![](https://raw.githubusercontent.com/rgreenblatt/multi_hop/master/eval_results/mapping_comparison_opus-4-5.png)
 
@@ -115,12 +117,15 @@ And the plots for the version of the dataset where the answer is converted to th
 
 # Appendix: adding the result of N 1-hop questions
 
-One closely related capability is adding the results of N 1-hop questions without CoT. As in, "What is (Q1) + (Q2) + ... (QN)?".
+To better understand what aspect of n-hop reasoning is difficult, we can look at a setting where the model needs to recall N pieces of knowledge in parallel and then combine them in some way (rather than having to do N sequential hops).
+I specifically look at the setting where the model must add the results of N 1-hop questions without CoT.
+As in, "What is (Q1) + (Q2) + ... (QN)?".
 I find that (unsurprisingly) models are a decent amount better at adding the results of N 1-hop questions than doing N-hop latent reasoning.
 
 ![](https://raw.githubusercontent.com/rgreenblatt/multi_hop/master/eval_results/gemini_addition_vs_hops_f300.png)
 
-I expected the difference to be even larger (e.g. models get 50% of 5 addend questions right).
+Before seeing these results but after seeing the N-hop results, I expected the difference to be even larger and for models to do better on N-addend questions. (I think I expected something like "models get 50% of 5-addend questions right", but I didn't write down a prediction and I don't remember exactly what I thought.)
+
 
 Here are results on a broader range of models:
 
