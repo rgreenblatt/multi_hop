@@ -319,6 +319,179 @@ def plot_gemini_addition_vs_hops(filler=300):
     print(f"Saved: {output_path}")
 
 
+def plot_error_distribution(filler=300, addend_counts=[4, 5, 6]):
+    """
+    Plot error distribution for Gemini 3 Pro, showing how often the model
+    is close vs wildly off.
+
+    Creates separate plots for each n in addend_counts.
+    """
+    model_short = "gemini-3-pro"
+    model_display = "Gemini 3 Pro"
+
+    data = load_addition_results(model_short, filler=filler)
+    if not data:
+        print(f"No data found for {model_short} with filler={filler}")
+        return
+
+    results = data.get("results", [])
+
+    for n_addends in addend_counts:
+        # Filter results for this addend count
+        n_results = [r for r in results if r.get("num_addends") == n_addends]
+
+        if not n_results:
+            print(f"No results found for n={n_addends}")
+            continue
+
+        # Compute errors (predicted - correct)
+        errors = []
+        parse_failures = 0
+        for r in n_results:
+            correct = r.get("correct_answer")
+            predicted_str = r.get("predicted_answer", "")
+
+            # Try to parse predicted answer as integer
+            try:
+                predicted = int(predicted_str.strip())
+                error = predicted - correct
+                errors.append(error)
+            except (ValueError, TypeError):
+                parse_failures += 1
+                continue
+
+        if not errors:
+            print(f"No valid errors computed for n={n_addends}")
+            continue
+
+        errors = np.array(errors)
+
+        # Statistics
+        n_correct = np.sum(errors == 0)
+        n_total = len(errors)
+        accuracy = n_correct / n_total * 100
+
+        # Compute percentiles for close vs far
+        abs_errors = np.abs(errors)
+        within_5 = np.sum(abs_errors <= 5)
+        within_10 = np.sum(abs_errors <= 10)
+        within_20 = np.sum(abs_errors <= 20)
+        beyond_50 = np.sum(abs_errors > 50)
+
+        # Create figure
+        fig, ax = plt.subplots(figsize=(12, 6))
+
+        # Determine bin edges - use symmetric bins around 0
+        max_abs_error = max(np.abs(errors)) if len(errors) > 0 else 100
+
+        # Cap display range
+        display_range = min(max_abs_error + 5, 100)
+
+        # Custom bins near 0, then width-10 bins beyond
+        # Bins: ..., [-25,-15], [-15,-5], [-5.5,-2.5], [-2.5,-0.5], [-0.5,0.5], [0.5,2.5], [2.5,5.5], [5,15], [15,25], ...
+        large_bin_width = 10
+
+        bin_edges = []
+        # Large negative bins
+        for edge in np.arange(-display_range, -5.5, large_bin_width):
+            bin_edges.append(edge)
+        # Granular bins near 0: [-5.5, -2.5, -0.5, 0.5, 2.5, 5.5]
+        bin_edges.extend([-5.5, -2.5, -0.5, 0.5, 2.5, 5.5])
+        # Large positive bins
+        for edge in np.arange(5.5 + large_bin_width, display_range + large_bin_width, large_bin_width):
+            bin_edges.append(edge)
+        bin_edges = sorted(set(bin_edges))
+
+        # Compute histogram
+        hist_counts, bin_edges_used = np.histogram(errors, bins=bin_edges)
+        bin_centers = (bin_edges_used[:-1] + bin_edges_used[1:]) / 2
+
+        # Color bars based on error value
+        colors = []
+        bar_widths = []
+        for i, center in enumerate(bin_centers):
+            width = bin_edges_used[i+1] - bin_edges_used[i]
+            bar_widths.append(width * 0.85)
+
+            if abs(center) < 0.5:  # error = 0
+                colors.append('#1E8449')  # Dark green for exactly correct
+            elif abs(center) <= 2:  # |error| = 1-2
+                colors.append('#58D68D')  # Light green for very close
+            elif abs(center) <= 5:  # |error| = 3-5
+                colors.append('#85C1E9')  # Light blue for close
+            elif abs(center) <= 20:
+                colors.append('#5DADE2')  # Blue for moderate
+            else:
+                colors.append('#E74C3C')  # Red for far off
+
+        bars = ax.bar(bin_centers, hist_counts, width=bar_widths,
+                      color=colors, edgecolor='black', linewidth=0.5)
+
+        # Highlight the 0 bin specially with thicker border
+        zero_bin_idx = np.argmin(np.abs(bin_centers))
+        if len(bars) > zero_bin_idx:
+            bars[zero_bin_idx].set_edgecolor('#145a32')
+            bars[zero_bin_idx].set_linewidth(2.5)
+
+        # Add annotations
+        ax.axvline(x=0, color='black', linestyle='--', alpha=0.5, linewidth=1.5)
+
+        # Title and labels
+        ax.set_xlabel("Error (Predicted - Correct)", fontsize=13)
+        ax.set_ylabel("Count", fontsize=13)
+        ax.set_title(f"{model_display}: Error Distribution for {n_addends} Addends (f={filler})",
+                     fontsize=14)
+
+        # Compute additional stats for near-misses
+        within_2 = np.sum(abs_errors <= 2)
+        near_miss_1_2 = within_2 - n_correct  # |error| = 1 or 2
+        near_miss_3_5 = within_5 - within_2   # |error| = 3, 4, or 5
+
+        # Add text box with statistics
+        stats_text = (
+            f"n = {n_total}\n"
+            f"Exact (err=0): {n_correct} ({accuracy:.1f}%)\n"
+            f"|err| 1-2: {near_miss_1_2} ({near_miss_1_2/n_total*100:.1f}%)\n"
+            f"|err| 3-5: {near_miss_3_5} ({near_miss_3_5/n_total*100:.1f}%)\n"
+            f"Within ±10: {within_10} ({within_10/n_total*100:.1f}%)\n"
+            f"Beyond ±20: {n_total - within_20} ({(n_total-within_20)/n_total*100:.1f}%)"
+        )
+        if parse_failures > 0:
+            stats_text += f"\nParse failures: {parse_failures}"
+
+        props = dict(boxstyle='round', facecolor='white', alpha=0.9, edgecolor='gray')
+        ax.text(0.98, 0.97, stats_text, transform=ax.transAxes, fontsize=10,
+                verticalalignment='top', horizontalalignment='right', bbox=props)
+
+        # Add legend for colors
+        from matplotlib.patches import Patch
+        legend_elements = [
+            Patch(facecolor='#1E8449', edgecolor='#145a32', linewidth=2, label='error = 0'),
+            Patch(facecolor='#58D68D', edgecolor='black', label='|error| 1-2'),
+            Patch(facecolor='#85C1E9', edgecolor='black', label='|error| 3-5'),
+            Patch(facecolor='#5DADE2', edgecolor='black', label='|error| 6-20'),
+            Patch(facecolor='#E74C3C', edgecolor='black', label='|error| > 20'),
+        ]
+        ax.legend(handles=legend_elements, loc='upper left', fontsize=10)
+
+        # Set x limits
+        ax.set_xlim(-display_range - 5, display_range + 5)
+
+        ax.grid(alpha=0.3, axis='y')
+
+        plt.tight_layout()
+        output_path = f"eval_results/error_distribution_gemini3pro_n{n_addends}_f{filler}.png"
+        plt.savefig(output_path, dpi=150, bbox_inches="tight")
+        plt.close()
+        print(f"Saved: {output_path}")
+
+        # Print summary
+        print(f"\n  n={n_addends}: {n_correct}/{n_total} correct ({accuracy:.1f}%)")
+        print(f"    Mean error: {np.mean(errors):.1f}, Median: {np.median(errors):.1f}")
+        print(f"    Std dev: {np.std(errors):.1f}")
+        print(f"    Range: [{np.min(errors)}, {np.max(errors)}]")
+
+
 def create_summary_table(filler=300):
     """Create markdown summary table for addition results."""
     print("\n" + "=" * 80)

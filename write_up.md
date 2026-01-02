@@ -90,6 +90,8 @@ So, Gemini 3 Pro getting that question right ~80% of the time is consistent with
 
 [^knowledge]: I include all combinations except age plus age.
 
+I think the original market probably isn't supposed to allow few-shot prompting, but it's pretty hard to avoid Gemini reasoning without few-shot prompting. I found that we could prevent Gemini from reasoning on specifically the harder manifold question using a longer and somewhat different prefill. I have relatively minimal prompts that reproduce success on these questions in the [code base (that is specific to these experiments)](https://github.com/rgreenblatt/compose_facts) and the README describes how to run this.
+
 Thus, I overall think Leo's prediction was wrong and both markets should resolve to yes: LLMs can now compose facts well enough to get both of these questions right and it looks like performance on latent multi-hop reasoning has been improving and will continue to improve.
 
 Code for these experiments can be found in a separate repo at [github.com/rgreenblatt/compose_facts](https://github.com/rgreenblatt/compose_facts). I've removed the datasets to reduce leakage, but you can regenerate them using `python3 create_compositional_dataset.py -n 300 && python3 create_compositional_dataset.py -n 300 --element-names`. PLEASE DON'T PUBLICLY POST THIS DATASET INCLUDING BY PUSHING IT TO GITHUB. (I also removed the correct answer in the "run_manifold_eval.py" file, you can manually edit this back in to run this file.) The [write_up.md](https://github.com/rgreenblatt/compose_facts/blob/master/write_up.md) file in this repo discusses more details of the dataset.
