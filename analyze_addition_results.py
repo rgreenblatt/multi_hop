@@ -447,6 +447,11 @@ def plot_error_distribution(filler=300, addend_counts=[4, 5, 6]):
         near_miss_1_2 = within_2 - n_correct  # |error| = 1 or 2
         near_miss_3_5 = within_5 - within_2   # |error| = 3, 4, or 5
 
+        # Compute stats about the correct answers themselves
+        correct_answers = np.array([r.get("correct_answer") for r in n_results])
+        correct_median = np.median(correct_answers)
+        correct_std = np.std(correct_answers)
+
         # Add text box with statistics
         stats_text = (
             f"n = {n_total}\n"
@@ -454,7 +459,9 @@ def plot_error_distribution(filler=300, addend_counts=[4, 5, 6]):
             f"|err| 1-2: {near_miss_1_2} ({near_miss_1_2/n_total*100:.1f}%)\n"
             f"|err| 3-5: {near_miss_3_5} ({near_miss_3_5/n_total*100:.1f}%)\n"
             f"Within ±10: {within_10} ({within_10/n_total*100:.1f}%)\n"
-            f"Beyond ±20: {n_total - within_20} ({(n_total-within_20)/n_total*100:.1f}%)"
+            f"Beyond ±20: {n_total - within_20} ({(n_total-within_20)/n_total*100:.1f}%)\n"
+            f"───────────────────\n"
+            f"Answers: median={correct_median:.0f}, std={correct_std:.0f}"
         )
         if parse_failures > 0:
             stats_text += f"\nParse failures: {parse_failures}"
